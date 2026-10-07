@@ -1,4 +1,4 @@
-"""DeepResearch Engine: FastAPI Application Server
+"""DeepResearch Swarm: FastAPI Application Server
 Provides REST endpoints and Server-Sent Events (SSE) for streaming multi-agent execution.
 """
 
@@ -13,9 +13,9 @@ from typing import Optional
 from agents.orchestrator import ResearchOrchestrator
 
 app = FastAPI(
-    title="DeepResearch Engine",
-    description="Automated Multi-Agent Deep Research & Fact-Checked Report Generator",
-    version="1.0.0"
+    title="DeepResearch Swarm",
+    description="Autonomous Multi-Agent Academic Research & Fact-Checked Paper Synthesis Engine",
+    version="1.2.0"
 )
 
 # Enable CORS for local testing & cloud deployment
@@ -34,6 +34,7 @@ class ResearchRequest(BaseModel):
     topic: str
     depth: Optional[int] = 4
     domain: Optional[str] = "General"
+    rigor_tone: Optional[str] = "Academic"
     api_key: Optional[str] = None
 
 
@@ -47,7 +48,11 @@ async def serve_index():
 
 @app.get("/api/health")
 async def health_check():
-    return {"status": "healthy", "service": "DeepResearch Multi-Agent Engine", "version": "1.0.0"}
+    return {
+        "status": "healthy",
+        "service": "DeepResearch Multi-Agent Swarm",
+        "version": "1.2.0"
+    }
 
 
 @app.post("/api/research/stream")
@@ -59,7 +64,12 @@ async def stream_research(req: ResearchRequest):
     orchestrator = ResearchOrchestrator(api_key=req.api_key)
 
     def event_generator():
-        for event in orchestrator.run_stream(req.topic, depth=req.depth or 4, domain=req.domain or "General"):
+        for event in orchestrator.run_stream(
+            topic=req.topic,
+            depth=req.depth or 4,
+            domain=req.domain or "General",
+            rigor_tone=req.rigor_tone or "Academic"
+        ):
             payload = json.dumps(event)
             yield f"data: {payload}\n\n"
 
@@ -77,6 +87,6 @@ async def stream_research(req: ResearchRequest):
 if __name__ == "__main__":
     import uvicorn
     print("=" * 60)
-    print("DeepResearch Engine running on: http://localhost:8000")
+    print("DeepResearch Swarm running on: http://localhost:8000")
     print("=" * 60)
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

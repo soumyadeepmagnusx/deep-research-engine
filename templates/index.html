@@ -1,119 +1,184 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DeepResearch Swarm | Autonomous Multi-Agent Academic Engine</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    
+    :root {
+      --glow-cyan: rgba(56, 189, 248, 0.4);
+      --glow-indigo: rgba(129, 140, 248, 0.35);
+      --glow-emerald: rgba(52, 211, 153, 0.35);
+    }
+    
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: radial-gradient(circle at 10% 10%, #0b1329 0%, #020617 100%);
-      color: #e2e8f0;
+      background: #030712;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+      color: #f1f5f9;
+      min-height: 100vh;
     }
+    
     .mono { font-family: 'JetBrains Mono', monospace; }
-    .glass {
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(20px);
+    
+    .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .neon-border-cyan {
+      box-shadow: 0 0 20px var(--glow-cyan), inset 0 0 15px rgba(56, 189, 248, 0.15);
+      border-color: #38bdf8 !important;
+    }
+
+    .neon-border-emerald {
+      box-shadow: 0 0 20px var(--glow-emerald), inset 0 0 15px rgba(52, 211, 153, 0.15);
+      border-color: #34d399 !important;
+    }
+
+    .agent-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .agent-card.active {
       border-color: #38bdf8;
-      box-shadow: 0 0 25px rgba(56, 189, 248, 0.25);
-      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.35);
+      transform: translateY(-4px) scale(1.02);
     }
     .agent-card.completed {
       border-color: #34d399;
       background: rgba(6, 78, 59, 0.25);
     }
-    .pulse-glow {
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+
+    /* Animated scanner line */
+    .scan-line {
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.8), transparent);
+      animation: scan 2.5s infinite;
     }
-    /* Graph visualization nodes */
-    .node-pulse {
-      animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+    @keyframes scan {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .7; transform: scale(1.05); }
-    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(3, 7, 18, 0.8); }
+    ::-webkit-scrollbar-thumb { background: rgba(51, 65, 85, 0.8); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
   </style>
 </head>
-<body class="min-h-screen p-4 md:p-8">
+<body class="p-3 sm:p-6 lg:p-8 relative selection:bg-sky-500/30 selection:text-sky-200">
 
-  <div class="max-w-6xl mx-auto space-y-6">
+  <div class="max-w-7xl mx-auto space-y-6">
 
-    <!-- Top Navigation & Branding -->
-    <header class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 glass p-6 rounded-2xl shadow-2xl">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 via-sky-500 to-indigo-600 flex items-center justify-center text-2xl shadow-xl shadow-cyan-500/20">
-          <i class="fa-solid fa-network-wired text-white"></i>
+    <!-- Top Futuristic Bar -->
+    <header class="glass-panel p-5 sm:p-6 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-[2px] scan-line"></div>
+      
+      <div class="flex items-center gap-4">
+        <div class="relative group">
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-500 via-sky-500 to-indigo-600 flex items-center justify-center text-2xl shadow-xl shadow-cyan-500/25 group-hover:scale-105 transition-transform duration-300">
+            <i class="fa-solid fa-atom text-white animate-spin" style="animation-duration: 20s;"></i>
+          </div>
+          <span class="absolute -bottom-1 -right-1 flex h-3.5 w-3.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 border-2 border-slate-900"></span>
+          </span>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-2xl font-black tracking-tight bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-300 bg-clip-text text-transparent">
               DeepResearch Swarm
             </h1>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/30 uppercase tracking-widest">
-              v1.0 Core
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/30 uppercase tracking-widest mono">
+              v1.2 PRO
             </span>
           </div>
-          <p class="text-xs text-slate-400 mt-0.5">Distributed Multi-Agent Consensus, Web Knowledge Extraction & Peer-Reviewed Synthesis</p>
+          <p class="text-xs text-slate-400 mt-1 flex items-center gap-2">
+            <span>Autonomous Multi-Agent Consensus</span>
+            <span class="text-slate-600">•</span>
+            <span>Fact-Checked Evidence Crawler</span>
+            <span class="text-slate-600">•</span>
+            <span class="text-sky-400 font-semibold">IEEE/ACM Academic Rigor</span>
+          </p>
         </div>
       </div>
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="font-medium">Swarm Ready</span>
-        </div>
-        <a href="#reportContainer" id="quickJumpBtn" class="hidden px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 border border-slate-700 transition">
-          <i class="fa-solid fa-arrow-down mr-1"></i> Jump to Report
+
+      <!-- Controls & Audio SFX Toggle -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <button id="sfxToggleBtn" onclick="toggleSFX()" class="px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 flex items-center gap-2 transition" title="Toggle Synthesizer Sound FX">
+          <i class="fa-solid fa-volume-high text-cyan-400" id="sfxIcon"></i>
+          <span id="sfxLabel" class="mono text-[11px]">SFX: ON</span>
+        </button>
+
+        <a href="https://github.com/soumyadeepmagnusx/deep-research-engine" target="_blank" class="px-4 py-2 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-sky-500/50 text-xs text-slate-200 flex items-center gap-2 transition group shadow-lg">
+          <i class="fa-brands fa-github text-sm group-hover:text-sky-400 transition"></i>
+          <span>soumyadeepmagnusx</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500"></i>
         </a>
       </div>
     </header>
 
-    <!-- Query Configuration & Swarm Controls -->
-    <section class="glass p-6 rounded-2xl shadow-xl space-y-5">
+    <!-- Query Configuration Matrix -->
+    <section class="glass-panel p-6 sm:p-7 rounded-3xl space-y-5 relative">
       <div class="space-y-2">
-        <label class="block text-sm font-semibold text-slate-200">
-          <i class="fa-solid fa-compass text-sky-400 mr-2"></i> Technical Investigation Topic:
-        </label>
+        <div class="flex items-center justify-between">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
+            <i class="fa-solid fa-compass text-sky-400"></i>
+            <span>Investigation Query & Topic Formulation</span>
+          </label>
+          <span class="text-[11px] mono text-slate-400">Natural Language or Academic Problem Statement</span>
+        </div>
         <div class="flex flex-col sm:flex-row gap-3">
-          <input 
-            type="text" 
-            id="topicInput" 
-            placeholder="e.g., Post-Quantum Cryptography: Migration Challenges for Financial Infrastructure by 2030" 
-            class="flex-1 bg-slate-900/90 border border-slate-700 rounded-xl px-4 py-3.5 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition text-slate-100 placeholder:text-slate-500"
-            value="Post-Quantum Cryptography: Migration Challenges for Financial Infrastructure by 2030"
-          >
+          <div class="relative flex-1">
+            <input 
+              type="text" 
+              id="topicInput" 
+              placeholder="e.g., Post-Quantum Cryptography: Migration Bottlenecks for Financial Infrastructure by 2030" 
+              class="w-full bg-slate-950/80 border border-slate-800 focus:border-sky-500 rounded-2xl px-5 py-4 text-sm text-slate-100 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500/20 transition mono shadow-inner"
+              value="Post-Quantum Cryptography: Migration Bottlenecks for Financial Infrastructure by 2030"
+            >
+          </div>
           <button 
             id="startBtn" 
             onclick="startResearch()" 
-            class="px-7 py-3.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-sky-500/25 flex items-center justify-center gap-2 transition"
+            class="px-8 py-4 rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 hover:from-sky-400 hover:to-purple-500 text-white font-extrabold text-sm shadow-xl shadow-sky-500/25 flex items-center justify-center gap-2.5 transition transform active:scale-95 group"
           >
-            <i class="fa-solid fa-bolt"></i> Dispatch Swarm
+            <i class="fa-solid fa-bolt text-amber-300 group-hover:animate-bounce"></i>
+            <span>Dispatch Swarm</span>
           </button>
         </div>
       </div>
 
-      <!-- Advanced Filter Controls -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2 border-t border-slate-800/80">
+      <!-- Supercharged Parameter Controls -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-3 border-t border-slate-800/80">
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Investigation Depth</label>
-          <select id="depthSelect" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
-            <option value="2">Fast Brief (2 Research Vectors)</option>
-            <option value="4" selected>Deep Dive (4 Research Vectors - Recommended)</option>
-            <option value="6">Exhaustive Thesis (6 Research Vectors)</option>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-layer-group text-sky-400"></i> Exploration Vectors
+          </label>
+          <select id="depthSelect" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500 mono">
+            <option value="2">⚡ Flash Recon (2 Vectors)</option>
+            <option value="4" selected>🎯 Deep Inquest (4 Vectors - Balanced)</option>
+            <option value="6">🔬 Exhaustive Swarm (6 Vectors - Maximum Depth)</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Domain Focus</label>
-          <select id="domainSelect" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-sky-500">
-            <option value="Computer Systems & Architecture" selected>Computer Systems & Architecture</option>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-microchip text-indigo-400"></i> Domain Focus
+          </label>
+          <select id="domainSelect" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500 mono">
+            <option value="Computer Systems & Architecture" selected>Computer Systems & Low-Latency</option>
             <option value="Cybersecurity & Cryptography">Cybersecurity & Cryptography</option>
             <option value="Artificial Intelligence & Agents">Artificial Intelligence & Agents</option>
             <option value="Distributed Systems & Cloud">Distributed Systems & Cloud</option>
@@ -122,174 +187,255 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Execution Mode</label>
-          <div class="flex items-center gap-2 px-3 py-2 bg-slate-900/60 border border-slate-800 rounded-lg text-xs text-slate-300">
-            <i class="fa-solid fa-shield-halved text-cyan-400"></i>
-            <span>Zero-Fail Resilience Active</span>
-          </div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-feather-pointed text-purple-400"></i> Synthesis Rigor Tone
+          </label>
+          <select id="rigorSelect" class="w-full bg-slate-950/90 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-sky-500 mono">
+            <option value="Academic" selected>🎓 IEEE/ACM Peer-Reviewed Paper</option>
+            <option value="Executive">💼 C-Suite Strategic Whitepaper</option>
+            <option value="RedTeam">🛡️ Red-Team Adversarial Audit</option>
+          </select>
         </div>
       </div>
 
-      <!-- Popular Query Pills -->
-      <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400 pt-1">
-        <span class="font-medium text-slate-500">Quick Presets:</span>
-        <button onclick="setTopic(this.innerText)" class="px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition">
+      <!-- Quick Preset Chips -->
+      <div class="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-400">
+        <span class="text-slate-500 font-semibold text-[11px]">Hot Topics:</span>
+        <button onclick="setTopic(this.innerText)" class="px-3 py-1 rounded-lg bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700 transition">
           Solid-State Batteries vs Lithium-Ion by 2030
         </button>
-        <button onclick="setTopic(this.innerText)" class="px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition">
-          Rust vs C++ for Low-Latency High Frequency Trading
+        <button onclick="setTopic(this.innerText)" class="px-3 py-1 rounded-lg bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700 transition">
+          Rust vs C++ for Ultra-Low Latency Order Execution
         </button>
-        <button onclick="setTopic(this.innerText)" class="px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition">
-          Autonomous Agentic AI in Compiler Optimization
+        <button onclick="setTopic(this.innerText)" class="px-3 py-1 rounded-lg bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800 hover:border-slate-700 transition">
+          Autonomous Agentic AI in LLVM Compiler Optimization
         </button>
       </div>
     </section>
 
-    <!-- Multi-Agent Stepper Pipeline -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <div id="card-planner" class="agent-card glass p-4 rounded-xl border border-slate-800 transition duration-300">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] font-bold text-sky-400 uppercase tracking-wider">Vector Strat</span>
-          <i class="fa-solid fa-sitemap text-slate-500 text-sm" id="icon-planner"></i>
+    <!-- Swarm Agent Matrix Pipeline -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div id="card-planner" class="agent-card glass-panel p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-sky-500/10 text-sky-400 border border-sky-500/30 uppercase mono">Stage 01</span>
+          <i class="fa-solid fa-sitemap text-slate-600 text-lg" id="icon-planner"></i>
         </div>
-        <h3 class="text-sm font-bold text-slate-100">Planner Agent</h3>
-        <p class="text-xs text-slate-400 mt-1">Formulates hypotheses & investigation vectors</p>
+        <h3 class="text-base font-extrabold text-white">Strategist Agent</h3>
+        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Decomposes queries into orthogonal research vectors and hypothesis trees.</p>
+        <div class="mt-3 flex items-center gap-2 text-[10px] mono text-slate-500">
+          <i class="fa-solid fa-circle-dot text-sky-400"></i> Vector Allocation Active
+        </div>
       </div>
 
-      <div id="card-researcher" class="agent-card glass p-4 rounded-xl border border-slate-800 transition duration-300">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider">Crawler</span>
-          <i class="fa-solid fa-magnifying-glass text-slate-500 text-sm" id="icon-researcher"></i>
+      <div id="card-researcher" class="agent-card glass-panel p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 uppercase mono">Stage 02</span>
+          <i class="fa-solid fa-network-wired text-slate-600 text-lg" id="icon-researcher"></i>
         </div>
-        <h3 class="text-sm font-bold text-slate-100">Researcher Agent</h3>
-        <p class="text-xs text-slate-400 mt-1">Crawls live web & extracts sanitized text</p>
+        <h3 class="text-base font-extrabold text-white">Crawler Agent</h3>
+        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Crawls primary literature, parses raw DOM structures & strips boilerplate.</p>
+        <div class="mt-3 flex items-center gap-2 text-[10px] mono text-slate-500">
+          <i class="fa-solid fa-circle-dot text-indigo-400"></i> Live Search Ingestion
+        </div>
       </div>
 
-      <div id="card-critic" class="agent-card glass p-4 rounded-xl border border-slate-800 transition duration-300">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Peer-Review</span>
-          <i class="fa-solid fa-scale-balanced text-slate-500 text-sm" id="icon-critic"></i>
+      <div id="card-critic" class="agent-card glass-panel p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/10 text-amber-400 border border-amber-500/30 uppercase mono">Stage 03</span>
+          <i class="fa-solid fa-scale-balanced text-slate-600 text-lg" id="icon-critic"></i>
         </div>
-        <h3 class="text-sm font-bold text-slate-100">Critic Agent</h3>
-        <p class="text-xs text-slate-400 mt-1">Cross-examines claims & computes trust score</p>
+        <h3 class="text-base font-extrabold text-white">Skeptic / Critic</h3>
+        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Cross-checks conflicting evidence, audits bias, and calculates credibility scores.</p>
+        <div class="mt-3 flex items-center gap-2 text-[10px] mono text-slate-500">
+          <i class="fa-solid fa-circle-dot text-amber-400"></i> Consensus Verification
+        </div>
       </div>
 
-      <div id="card-synthesizer" class="agent-card glass p-4 rounded-xl border border-slate-800 transition duration-300">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Synthesis</span>
-          <i class="fa-solid fa-file-signature text-slate-500 text-sm" id="icon-synthesizer"></i>
+      <div id="card-synthesizer" class="agent-card glass-panel p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-3">
+          <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase mono">Stage 04</span>
+          <i class="fa-solid fa-file-contract text-slate-600 text-lg" id="icon-synthesizer"></i>
         </div>
-        <h3 class="text-sm font-bold text-slate-100">Synthesizer Agent</h3>
-        <p class="text-xs text-slate-400 mt-1">Authors publication paper with bibliography</p>
+        <h3 class="text-base font-extrabold text-white">Synthesizer Agent</h3>
+        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Compiles structured thesis paper with inline citations and BibTeX records.</p>
+        <div class="mt-3 flex items-center gap-2 text-[10px] mono text-slate-500">
+          <i class="fa-solid fa-circle-dot text-emerald-400"></i> Publication Ready
+        </div>
       </div>
     </div>
 
-    <!-- Live Metrics HUD -->
-    <div id="metricsHUD" class="grid grid-cols-2 sm:grid-cols-4 gap-3 glass p-4 rounded-2xl">
-      <div class="text-center p-2 rounded-xl bg-slate-900/40 border border-slate-800">
-        <div class="text-xs text-slate-400 uppercase font-semibold">Vectors Explored</div>
-        <div id="hudVectors" class="text-xl font-black text-sky-400 mt-1 mono">0</div>
+    <!-- Live Telemetry HUD -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 glass-panel p-5 rounded-3xl">
+      <div class="text-center p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80">
+        <div class="text-[10px] uppercase font-bold tracking-wider text-slate-400 mono">Vectors Explored</div>
+        <div id="hudVectors" class="text-2xl sm:text-3xl font-black text-sky-400 mt-1 mono">0</div>
       </div>
-      <div class="text-center p-2 rounded-xl bg-slate-900/40 border border-slate-800">
-        <div class="text-xs text-slate-400 uppercase font-semibold">Evidence Nodes</div>
-        <div id="hudSources" class="text-xl font-black text-indigo-400 mt-1 mono">0</div>
+      <div class="text-center p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80">
+        <div class="text-[10px] uppercase font-bold tracking-wider text-slate-400 mono">Evidence Nodes</div>
+        <div id="hudSources" class="text-2xl sm:text-3xl font-black text-indigo-400 mt-1 mono">0</div>
       </div>
-      <div class="text-center p-2 rounded-xl bg-slate-900/40 border border-slate-800">
-        <div class="text-xs text-slate-400 uppercase font-semibold">Fact-Check Score</div>
-        <div id="hudScore" class="text-xl font-black text-emerald-400 mt-1 mono">--</div>
+      <div class="text-center p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80">
+        <div class="text-[10px] uppercase font-bold tracking-wider text-slate-400 mono">Fact-Check Consensus</div>
+        <div id="hudScore" class="text-2xl sm:text-3xl font-black text-emerald-400 mt-1 mono">--</div>
       </div>
-      <div class="text-center p-2 rounded-xl bg-slate-900/40 border border-slate-800">
-        <div class="text-xs text-slate-400 uppercase font-semibold">Pipeline Latency</div>
-        <div id="hudLatency" class="text-xl font-black text-amber-400 mt-1 mono">0.0s</div>
+      <div class="text-center p-3 rounded-2xl bg-slate-950/60 border border-slate-800/80">
+        <div class="text-[10px] uppercase font-bold tracking-wider text-slate-400 mono">Swarm Latency</div>
+        <div id="hudLatency" class="text-2xl sm:text-3xl font-black text-amber-400 mt-1 mono">0.0s</div>
       </div>
     </div>
 
-    <!-- Live Interactive Knowledge Network Graph -->
-    <section class="glass p-5 rounded-2xl shadow-xl space-y-3">
+    <!-- Interactive HTML5 Dynamic Canvas Force Topology Graph -->
+    <section class="glass-panel p-6 rounded-3xl space-y-3 relative overflow-hidden">
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-circle-nodes text-sky-400 text-sm"></i>
-          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">Dynamic Investigation Topology</h2>
+        <div class="flex items-center gap-2.5">
+          <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></div>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-200">Interactive Dynamic Topology Particle Graph</h2>
         </div>
-        <span class="text-[11px] text-slate-400">Live Vector-to-Source Mapping</span>
+        <span class="text-[11px] mono text-slate-400">Drag nodes • Hover to inspect nodes</span>
       </div>
-      
-      <div id="graphContainer" class="w-full h-56 bg-slate-950/90 rounded-xl border border-slate-800 flex items-center justify-center overflow-hidden relative">
-        <svg id="knowledgeSvg" class="w-full h-full" viewBox="0 0 800 240">
-          <defs>
-            <linearGradient id="edgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.6"/>
-              <stop offset="100%" stop-color="#818cf8" stop-opacity="0.6"/>
-            </linearGradient>
-          </defs>
-          <!-- Dynamic nodes will be injected here -->
-          <circle cx="400" cy="120" r="28" fill="#0284c7" stroke="#38bdf8" stroke-width="2" class="node-pulse"/>
-          <text x="400" y="125" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">TOPIC</text>
-        </svg>
+
+      <div class="w-full h-80 bg-slate-950/90 rounded-2xl border border-slate-800/90 relative overflow-hidden">
+        <canvas id="topologyCanvas" class="w-full h-full cursor-crosshair"></canvas>
+        <div id="canvasTooltip" class="absolute hidden px-3 py-2 rounded-xl bg-slate-900/95 border border-slate-700 text-xs text-slate-200 pointer-events-none shadow-2xl z-20 max-w-xs backdrop-blur-md">
+        </div>
       </div>
     </section>
 
-    <!-- Terminal Swarm Logs -->
-    <section class="glass p-5 rounded-2xl shadow-xl space-y-3">
+    <!-- Terminal Swarm Execution Stream -->
+    <section class="glass-panel p-6 rounded-3xl space-y-3">
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2.5">
           <i class="fa-solid fa-terminal text-emerald-400 text-sm"></i>
-          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Swarm Execution Stream</h2>
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Swarm Telemetry Stream</h2>
         </div>
-        <span id="logStatus" class="text-xs text-slate-400 mono">Standby</span>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="logStatus" class="text-xs mono text-slate-400">System Ready</span>
+        </div>
       </div>
-      <div id="terminalLog" class="mono bg-slate-950/90 rounded-xl p-4 h-48 overflow-y-auto text-xs text-slate-300 space-y-1.5 border border-slate-800">
-        <div class="text-slate-500">> Swarm initialized. Select options and press 'Dispatch Swarm' to initiate.</div>
+      <div id="terminalLog" class="mono bg-slate-950/90 rounded-2xl p-5 h-48 overflow-y-auto text-xs text-slate-300 space-y-2 border border-slate-800/90 shadow-inner">
+        <div class="text-slate-500">> Multi-Agent Core standing by. Select parameters and launch query.</div>
       </div>
     </section>
 
-    <!-- Report Output Section -->
-    <section id="reportContainer" class="glass p-6 md:p-8 rounded-2xl shadow-2xl space-y-6 hidden">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+    <!-- Academic Report Output Container -->
+    <section id="reportContainer" class="glass-panel p-6 sm:p-9 rounded-3xl space-y-6 hidden">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-6 border-b border-slate-800">
         <div>
-          <div class="flex items-center gap-3">
-            <h2 class="text-xl font-extrabold text-white">Synthesized Research Report</h2>
-            <span id="confidenceBadge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-              Confidence: 92/100
+          <div class="flex flex-wrap items-center gap-3">
+            <h2 class="text-2xl font-black text-white">Synthesized Publication Paper</h2>
+            <span id="confidenceBadge" class="px-3 py-1 rounded-full text-xs font-black mono border">
+              Consensus: 92%
             </span>
           </div>
-          <p class="text-xs text-slate-400 mt-1">Peer-reviewed, cross-verified, and cited with real primary literature.</p>
+          <p class="text-xs text-slate-400 mt-1">Cross-examined, peer-audited, and formatted with formal academic citations.</p>
         </div>
+
+        <!-- Export & Audio Controls -->
         <div class="flex flex-wrap items-center gap-2">
-          <button onclick="copyMarkdown()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700 flex items-center gap-1.5 transition">
+          <button id="ttsBtn" onclick="toggleAudioSpeech()" class="px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-xs font-bold flex items-center gap-2 transition shadow">
+            <i class="fa-solid fa-headphones" id="ttsIcon"></i>
+            <span id="ttsLabel">Read Summary</span>
+          </button>
+          <button onclick="copyMarkdown()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-medium flex items-center gap-1.5 transition">
             <i class="fa-regular fa-copy"></i> Copy Markdown
           </button>
-          <button onclick="downloadReport()" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-medium text-white flex items-center gap-1.5 transition shadow">
-            <i class="fa-solid fa-download"></i> Download .md
+          <button onclick="downloadReport()" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow">
+            <i class="fa-solid fa-download"></i> .md
           </button>
-          <button onclick="downloadHTML()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-medium text-white flex items-center gap-1.5 transition shadow">
-            <i class="fa-solid fa-file-code"></i> Download .html
+          <button onclick="downloadHTML()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow">
+            <i class="fa-solid fa-file-code"></i> .html (Print PDF)
+          </button>
+          <button onclick="downloadBibTeX()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow">
+            <i class="fa-solid fa-book-bookmark"></i> .bib (BibTeX)
           </button>
         </div>
       </div>
 
-      <!-- Rendered Markdown Content -->
+      <!-- Rendered Article -->
       <article id="reportContent" class="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed space-y-4">
       </article>
     </section>
 
-    <!-- Author & Footer -->
-    <footer class="text-center text-xs text-slate-500 py-6 border-t border-slate-900 space-y-1">
-      <p class="font-medium text-slate-400">DeepResearch Swarm • Designed & Engineered by Soumyadeep Ghosh</p>
-      <p>Department of Computer Science & Engineering • Open-Source Autonomous Agents</p>
+    <!-- Source Inspector Drawer (Modal) -->
+    <div id="sourceDrawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-slate-950/95 border-l border-slate-800 p-6 shadow-2xl backdrop-blur-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-between">
+      <div class="space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-magnifying-glass-chart text-sky-400"></i>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Evidence Inspector</h3>
+          </div>
+          <button onclick="closeSourceDrawer()" class="text-slate-400 hover:text-white transition">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <div class="space-y-3" id="drawerContent">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-800">
+        <button onclick="closeSourceDrawer()" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs text-slate-300 border border-slate-800 font-semibold transition">
+          Close Inspector
+        </button>
+      </div>
+    </div>
+
+    <!-- Verified Author Footer -->
+    <footer class="text-center text-xs text-slate-500 py-8 border-t border-slate-900 space-y-1.5">
+      <p class="font-bold text-slate-300 tracking-wide">DeepResearch Swarm • Engineered by Soumyadeep Ghosh</p>
+      <p class="text-slate-400">Department of Computer Science & Engineering • Brainware University</p>
+      <p class="text-[11px] text-slate-600">Open-Source Distributed Multi-Agent Systems • MIT License</p>
     </footer>
 
   </div>
 
   <script>
     let currentMarkdown = "";
+    let currentBibtex = "";
+    let currentSources = [];
     let startTime = 0;
     let timerInterval = null;
-    let vectorList = [];
-    let sourceList = [];
+    let sfxEnabled = true;
+    let audioCtx = null;
+    let isSpeaking = false;
+
+    // Web Audio API Synthesizer (Zero External Dependencies)
+    function playBeep(freq=600, duration=0.08, type="sine") {
+      if (!sfxEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function playChord() {
+      if (!sfxEnabled) return;
+      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+        setTimeout(() => playBeep(freq, 0.35, "triangle"), i * 70);
+      });
+    }
+
+    function toggleSFX() {
+      sfxEnabled = !sfxEnabled;
+      document.getElementById('sfxLabel').innerText = sfxEnabled ? "SFX: ON" : "SFX: MUTED";
+      document.getElementById('sfxIcon').className = sfxEnabled ? "fa-solid fa-volume-high text-cyan-400" : "fa-solid fa-volume-xmark text-slate-500";
+      if (sfxEnabled) playBeep(880, 0.1);
+    }
 
     function setTopic(text) {
       document.getElementById('topicInput').value = text;
+      playBeep(700, 0.05);
     }
 
     function addLog(msg, color="text-slate-300") {
@@ -309,68 +455,265 @@
       card.classList.remove('active', 'completed');
       if (state === 'active') {
         card.classList.add('active');
-        icon.className = "fa-solid fa-spinner fa-spin text-sky-400 text-sm";
+        icon.className = "fa-solid fa-spinner fa-spin text-sky-400 text-lg";
+        playBeep(520, 0.06);
       } else if (state === 'completed') {
         card.classList.add('completed');
-        icon.className = "fa-solid fa-circle-check text-emerald-400 text-sm";
+        icon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+        playBeep(880, 0.08);
       }
     }
 
-    function updateTopologyGraph(vectors, sources) {
-      const svg = document.getElementById('knowledgeSvg');
-      const centerX = 400;
-      const centerY = 120;
-      
-      let html = `
-        <defs>
-          <linearGradient id="edgeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.4"/>
-            <stop offset="100%" stop-color="#818cf8" stop-opacity="0.4"/>
-          </linearGradient>
-        </defs>
-      `;
+    // HTML5 Canvas Dynamic Force Topology Graph
+    const canvas = document.getElementById('topologyCanvas');
+    const ctx = canvas.getContext('2d');
+    let nodes = [];
+    let particles = [];
+    let hoveredNode = null;
+    let draggedNode = null;
 
-      // Render Vectors radiating out
-      const totalV = vectors.length || 1;
-      const radius = 90;
-      const vCoords = [];
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function initTopology(vectors) {
+      resizeCanvas();
+      nodes = [];
+      particles = [];
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+
+      // Center Topic Node
+      nodes.push({ id: 0, label: "TOPIC", type: "center", x: cx, y: cy, radius: 24, color: "#0284c7" });
+
+      // Vector Nodes
+      const vCount = vectors.length || 1;
+      const radiusDist = Math.min(canvas.width, canvas.height) * 0.35;
 
       vectors.forEach((v, i) => {
-        const angle = (i / totalV) * (2 * Math.PI) - Math.PI / 2;
-        const vx = centerX + radius * Math.cos(angle) * 2.2;
-        const vy = centerY + radius * Math.sin(angle);
-        vCoords.push({ x: vx, y: vy, text: v });
-
-        // Edge from center to vector
-        html += `<line x1="${centerX}" y1="${centerY}" x2="${vx}" y2="${vy}" stroke="url(#edgeGrad)" stroke-width="2" stroke-dasharray="4"/>`;
-        // Vector Node
-        html += `<circle cx="${vx}" cy="${vy}" r="14" fill="#1e1b4b" stroke="#818cf8" stroke-width="2"/>`;
-        html += `<text x="${vx}" y="${vy+4}" text-anchor="middle" fill="#c7d2fe" font-size="9" font-weight="bold">V${i+1}</text>`;
+        const angle = (i / vCount) * (2 * Math.PI) - Math.PI / 2;
+        const vx = cx + radiusDist * Math.cos(angle);
+        const vy = cy + radiusDist * Math.sin(angle);
+        nodes.push({
+          id: i + 1,
+          label: `V${i+1}`,
+          fullText: v,
+          type: "vector",
+          x: vx,
+          y: vy,
+          radius: 16,
+          color: "#6366f1"
+        });
       });
-
-      // Center Node
-      html += `
-        <circle cx="${centerX}" cy="${centerY}" r="26" fill="#0284c7" stroke="#38bdf8" stroke-width="2" class="node-pulse"/>
-        <text x="${centerX}" y="${centerY+4}" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="bold">TOPIC</text>
-      `;
-
-      svg.innerHTML = html;
     }
 
+    function addSourceNodesToTopology(sources) {
+      currentSources = sources;
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const vNodes = nodes.filter(n => n.type === "vector");
+
+      sources.slice(0, 10).forEach((s, idx) => {
+        const targetV = vNodes[idx % (vNodes.length || 1)] || nodes[0];
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 40 + Math.random() * 30;
+        nodes.push({
+          id: 100 + idx,
+          label: `S${idx+1}`,
+          sourceData: s,
+          type: "source",
+          targetVectorId: targetV.id,
+          x: targetV.x + Math.cos(angle) * dist,
+          y: targetV.y + Math.sin(angle) * dist,
+          radius: 11,
+          color: "#10b981"
+        });
+      });
+    }
+
+    function animateTopology() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw Edges & Laser Pulses
+      const center = nodes[0];
+      if (center) {
+        nodes.forEach(n => {
+          if (n.type === "vector") {
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(56, 189, 248, 0.25)";
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            ctx.moveTo(center.x, center.y);
+            ctx.lineTo(n.x, n.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          } else if (n.type === "source") {
+            const parent = nodes.find(p => p.id === n.targetVectorId) || center;
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(52, 211, 153, 0.2)";
+            ctx.lineWidth = 1;
+            ctx.moveTo(parent.x, parent.y);
+            ctx.lineTo(n.x, n.y);
+            ctx.stroke();
+          }
+        });
+      }
+
+      // Draw Particles
+      if (Math.random() < 0.2 && nodes.length > 1) {
+        const target = nodes[1 + Math.floor(Math.random() * (nodes.length - 1))];
+        if (target && center) {
+          particles.push({
+            x: center.x,
+            y: center.y,
+            tx: target.x,
+            ty: target.y,
+            progress: 0,
+            speed: 0.035
+          });
+        }
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.progress += p.speed;
+        const px = p.x + (p.tx - p.x) * p.progress;
+        const py = p.y + (p.ty - p.y) * p.progress;
+
+        ctx.beginPath();
+        ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = "#38bdf8";
+        ctx.shadowColor = "#38bdf8";
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        if (p.progress >= 1) particles.splice(i, 1);
+      }
+
+      // Draw Nodes
+      nodes.forEach(n => {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+        ctx.fillStyle = n.color;
+        ctx.shadowColor = n.color;
+        ctx.shadowBlur = n === hoveredNode ? 20 : 8;
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Label
+        ctx.fillStyle = "#ffffff";
+        ctx.font = `${n.type === "center" ? "bold 11px" : "10px"} 'JetBrains Mono'`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(n.label, n.x, n.y);
+      });
+
+      requestAnimationFrame(animateTopology);
+    }
+    requestAnimationFrame(animateTopology);
+
+    // Canvas Mouse Interactivity
+    canvas.addEventListener('mousemove', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      if (draggedNode) {
+        draggedNode.x = mx;
+        draggedNode.y = my;
+        return;
+      }
+
+      hoveredNode = null;
+      nodes.forEach(n => {
+        const dist = Math.hypot(n.x - mx, n.y - my);
+        if (dist <= n.radius) hoveredNode = n;
+      });
+
+      const tooltip = document.getElementById('canvasTooltip');
+      if (hoveredNode) {
+        canvas.style.cursor = "pointer";
+        tooltip.style.left = `${mx + 15}px`;
+        tooltip.style.top = `${my - 20}px`;
+        tooltip.classList.remove('hidden');
+
+        if (hoveredNode.type === "center") {
+          tooltip.innerHTML = `<span class="font-bold text-sky-400">Topic Root</span><div class="text-[11px] text-slate-300">Central Investigation Seed</div>`;
+        } else if (hoveredNode.type === "vector") {
+          tooltip.innerHTML = `<span class="font-bold text-indigo-400">${hoveredNode.label}</span><div class="text-[11px] text-slate-300">${hoveredNode.fullText}</div>`;
+        } else if (hoveredNode.type === "source") {
+          const sd = hoveredNode.sourceData || {};
+          tooltip.innerHTML = `<span class="font-bold text-emerald-400">${sd.title || "Source"}</span><div class="text-[10px] text-slate-400">${sd.url || ""}</div>`;
+        }
+      } else {
+        canvas.style.cursor = "crosshair";
+        tooltip.classList.add('hidden');
+      }
+    });
+
+    canvas.addEventListener('mousedown', e => {
+      if (hoveredNode) draggedNode = hoveredNode;
+    });
+    window.addEventListener('mouseup', () => draggedNode = null);
+
+    canvas.addEventListener('click', () => {
+      if (hoveredNode && hoveredNode.type === "source" && hoveredNode.sourceData) {
+        openSourceDrawer(hoveredNode.sourceData);
+      }
+    });
+
+    function openSourceDrawer(s) {
+      const drawer = document.getElementById('sourceDrawer');
+      const content = document.getElementById('drawerContent');
+      content.innerHTML = `
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <span class="text-[10px] uppercase font-bold text-slate-400 mono">Title</span>
+          <h4 class="text-sm font-bold text-white">${s.title}</h4>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <span class="text-[10px] uppercase font-bold text-slate-400 mono">URL & Origin</span>
+          <a href="${s.url}" target="_blank" class="text-xs text-sky-400 break-all hover:underline block">${s.url}</a>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+          <span class="text-[10px] uppercase font-bold text-slate-400 mono">Extracted Evidence Snippet</span>
+          <p class="text-xs text-slate-300 leading-relaxed">${s.snippet || s.content || "No snippet available."}</p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+          <span class="text-[10px] uppercase font-bold text-slate-400 mono">Credibility Score</span>
+          <span class="text-xs font-bold text-emerald-400 mono">${s.trust_score || 92}% / 100%</span>
+        </div>
+      `;
+      drawer.classList.remove('translate-x-full');
+      playBeep(660, 0.08);
+    }
+
+    function closeSourceDrawer() {
+      document.getElementById('sourceDrawer').classList.add('translate-x-full');
+    }
+
+    // Swarm Execution Trigger
     async function startResearch() {
       const topic = document.getElementById('topicInput').value.trim();
       const depth = parseInt(document.getElementById('depthSelect').value) || 4;
       const domain = document.getElementById('domainSelect').value;
+      const rigor_tone = document.getElementById('rigorSelect').value;
 
       if (!topic) return alert("Please enter an investigation topic.");
+
+      playBeep(440, 0.15, "sawtooth");
 
       const btn = document.getElementById('startBtn');
       btn.disabled = true;
       btn.classList.add('opacity-50', 'cursor-not-allowed');
 
-      // Reset HUD & UI
-      vectorList = [];
-      sourceList = [];
+      // Reset HUD
       document.getElementById('hudVectors').innerText = "0";
       document.getElementById('hudSources').innerText = "0";
       document.getElementById('hudScore').innerText = "--";
@@ -382,8 +725,9 @@
       });
       document.getElementById('terminalLog').innerHTML = '';
       document.getElementById('reportContainer').classList.add('hidden');
-      document.getElementById('quickJumpBtn').classList.add('hidden');
-      document.getElementById('logStatus').innerText = "Swarm in motion...";
+      document.getElementById('logStatus').innerText = "Swarm Dispatched...";
+
+      initTopology([]);
 
       startTime = Date.now();
       clearInterval(timerInterval);
@@ -392,13 +736,13 @@
         document.getElementById('hudLatency').innerText = `${elapsed}s`;
       }, 100);
 
-      addLog(`[Dispatcher] Initializing Swarm for: "${topic}" (${domain})`, "text-sky-300 font-semibold");
+      addLog(`[Dispatcher] Initializing Multi-Agent Swarm for: "${topic}" (${domain} | ${rigor_tone})`, "text-sky-300 font-semibold");
 
       try {
         const response = await fetch('/api/research/stream', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ topic, depth, domain })
+          body: JSON.stringify({ topic, depth, domain, rigor_tone })
         });
 
         const reader = response.body.getReader();
@@ -421,12 +765,12 @@
           }
         }
       } catch (err) {
-        addLog(`[Error] Swarm runtime fault: ${err.message}`, "text-rose-400");
+        addLog(`[Error] Swarm runtime exception: ${err.message}`, "text-rose-400");
       } finally {
         clearInterval(timerInterval);
         btn.disabled = false;
         btn.classList.remove('opacity-50', 'cursor-not-allowed');
-        document.getElementById('logStatus').innerText = "Completed";
+        document.getElementById('logStatus').innerText = "Swarm Standby";
       }
     }
 
@@ -436,12 +780,11 @@
         addLog(data.message, "text-sky-300");
       } else if (data.stage === 'planner_done') {
         setAgentState('planner', 'completed');
-        addLog(data.message, "text-emerald-400");
+        addLog(data.message, "text-emerald-400 font-semibold");
         if (data.data) {
-          vectorList = data.data;
-          document.getElementById('hudVectors').innerText = vectorList.length;
-          updateTopologyGraph(vectorList, sourceList);
-          vectorList.forEach((q, idx) => addLog(`  ↳ Vector [${idx+1}]: "${q}"`, "text-slate-400"));
+          document.getElementById('hudVectors').innerText = data.data.length;
+          initTopology(data.data);
+          data.data.forEach((q, idx) => addLog(`  ↳ Vector [0${idx+1}]: "${q}"`, "text-slate-400"));
         }
       } else if (data.stage === 'researching') {
         setAgentState('researcher', 'active');
@@ -450,49 +793,82 @@
         addLog(`  ↳ ${data.message}`, "text-slate-400");
       } else if (data.stage === 'research_done') {
         setAgentState('researcher', 'completed');
-        addLog(data.message, "text-emerald-400 font-semibold");
+        addLog(data.message, "text-emerald-400 font-bold");
         if (data.data) {
-          sourceList = data.data;
-          document.getElementById('hudSources').innerText = sourceList.length;
+          document.getElementById('hudSources').innerText = data.data.length;
+          addSourceNodesToTopology(data.data);
         }
       } else if (data.stage === 'critic') {
         setAgentState('critic', 'active');
         addLog(data.message, "text-amber-300");
       } else if (data.stage === 'critic_done') {
         setAgentState('critic', 'completed');
-        addLog(data.message, "text-emerald-400");
+        addLog(data.message, "text-emerald-400 font-semibold");
         document.getElementById('hudScore').innerText = `${data.data.confidence_score}%`;
       } else if (data.stage === 'synthesizer') {
         setAgentState('synthesizer', 'active');
-        addLog(data.message, "text-emerald-300");
+        addLog(data.message, "text-purple-300");
       } else if (data.stage === 'completed') {
         setAgentState('synthesizer', 'completed');
         addLog(data.message, "text-emerald-400 font-bold");
-        renderReport(data.report, data.confidence_score);
+        playChord();
+        renderReport(data.report, data.confidence_score, data.bibtex);
       }
     }
 
-    function renderReport(markdown, score) {
+    function renderReport(markdown, score, bibtex) {
       currentMarkdown = markdown;
+      currentBibtex = bibtex || "";
       const container = document.getElementById('reportContainer');
       const content = document.getElementById('reportContent');
       const badge = document.getElementById('confidenceBadge');
-      const jumpBtn = document.getElementById('quickJumpBtn');
 
       badge.innerText = `Fact-Check Score: ${score}/100`;
       badge.className = score >= 80 
-        ? "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-        : "px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40";
+        ? "px-3 py-1 rounded-full text-xs font-black mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+        : "px-3 py-1 rounded-full text-xs font-black mono bg-amber-500/20 text-amber-300 border border-amber-500/40";
 
       content.innerHTML = marked.parse(markdown);
       container.classList.remove('hidden');
-      jumpBtn.classList.remove('hidden');
       container.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Web Speech API Synthesis Readout
+    function toggleAudioSpeech() {
+      if (!('speechSynthesis' in window)) {
+        return alert("Your browser does not support Speech Synthesis.");
+      }
+
+      const btn = document.getElementById('ttsBtn');
+      const label = document.getElementById('ttsLabel');
+      const icon = document.getElementById('ttsIcon');
+
+      if (isSpeaking) {
+        window.speechSynthesis.cancel();
+        isSpeaking = false;
+        label.innerText = "Read Summary";
+        icon.className = "fa-solid fa-headphones";
+      } else {
+        const text = document.getElementById('reportContent').innerText.slice(0, 700);
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.rate = 1.05;
+        utter.pitch = 1.0;
+        utter.onend = () => {
+          isSpeaking = false;
+          label.innerText = "Read Summary";
+          icon.className = "fa-solid fa-headphones";
+        };
+        window.speechSynthesis.speak(utter);
+        isSpeaking = true;
+        label.innerText = "Stop Reading";
+        icon.className = "fa-solid fa-stop text-rose-400";
+      }
     }
 
     function copyMarkdown() {
       navigator.clipboard.writeText(currentMarkdown);
-      alert("Academic Markdown report copied to clipboard!");
+      playBeep(880, 0.08);
+      alert("Academic Markdown paper copied to clipboard!");
     }
 
     function downloadReport() {
@@ -500,7 +876,17 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `DeepResearch_Swarm_Report_${Date.now()}.md`;
+      a.download = `DeepResearch_Paper_${Date.now()}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function downloadBibTeX() {
+      const blob = new Blob([currentBibtex], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `references_${Date.now()}.bib`;
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -511,21 +897,21 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>DeepResearch Academic Report</title>
+  <title>DeepResearch Academic Paper</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; max-width: 800px; margin: 40px auto; padding: 20px; color: #1e293b; }
-    h1, h2, h3 { color: #0f172a; }
-    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; max-width: 850px; margin: 40px auto; padding: 24px; color: #0f172a; }
+    h1, h2, h3 { color: #0284c7; }
+    table { width: 100%; border-collapse: collapse; margin: 24px 0; }
     th, td { border: 1px solid #cbd5e1; padding: 10px; text-align: left; }
-    th { background: #f1f5f9; }
-    blockquote { border-left: 4px solid #0284c7; padding-left: 15px; color: #475569; margin: 20px 0; }
-    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+    th { background: #f8fafc; font-weight: bold; }
+    blockquote { border-left: 4px solid #0284c7; padding-left: 16px; color: #475569; margin: 20px 0; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
   </style>
 </head>
 <body>
   ${reportHtml}
-  <hr style="margin-top: 40px;"/>
-  <p style="font-size: 12px; color: #64748b;">Generated via DeepResearch Swarm • Author: Soumyadeep (B.Tech CSE)</p>
+  <hr style="margin-top: 50px;"/>
+  <p style="font-size: 12px; color: #64748b;">Authored via DeepResearch Swarm • Author: Soumyadeep Ghosh (B.Tech CSE, Brainware University)</p>
 </body>
 </html>`;
 
@@ -533,7 +919,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `DeepResearch_Swarm_Report_${Date.now()}.html`;
+      a.download = `DeepResearch_Paper_${Date.now()}.html`;
       a.click();
       URL.revokeObjectURL(url);
     }
