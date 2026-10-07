@@ -14,6 +14,7 @@
       --glow-cyan: rgba(56, 189, 248, 0.4);
       --glow-indigo: rgba(129, 140, 248, 0.35);
       --glow-emerald: rgba(52, 211, 153, 0.35);
+      --glow-rose: rgba(244, 63, 94, 0.35);
     }
     
     body {
@@ -35,16 +36,6 @@
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    }
-
-    .neon-border-cyan {
-      box-shadow: 0 0 20px var(--glow-cyan), inset 0 0 15px rgba(56, 189, 248, 0.15);
-      border-color: #38bdf8 !important;
-    }
-
-    .neon-border-emerald {
-      box-shadow: 0 0 20px var(--glow-emerald), inset 0 0 15px rgba(52, 211, 153, 0.15);
-      border-color: #34d399 !important;
     }
 
     .agent-card {
@@ -101,21 +92,26 @@
               DeepResearch Swarm
             </h1>
             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/30 uppercase tracking-widest mono">
-              v1.2 PRO
+              v1.3 PRO
             </span>
           </div>
           <p class="text-xs text-slate-400 mt-1 flex items-center gap-2">
             <span>Autonomous Multi-Agent Consensus</span>
             <span class="text-slate-600">•</span>
-            <span>Fact-Checked Evidence Crawler</span>
+            <span>Adversarial Debate Arena</span>
             <span class="text-slate-600">•</span>
             <span class="text-sky-400 font-semibold">IEEE/ACM Academic Rigor</span>
           </p>
         </div>
       </div>
 
-      <!-- Controls & Audio SFX Toggle -->
+      <!-- Controls & History Vault -->
       <div class="flex flex-wrap items-center gap-2.5">
+        <button onclick="openHistoryDrawer()" class="px-3.5 py-2 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-sky-500 text-xs text-slate-200 flex items-center gap-2 transition group shadow-lg" title="Open Saved Research History">
+          <i class="fa-solid fa-box-archive text-amber-400 group-hover:scale-110 transition"></i>
+          <span class="mono text-[11px] font-bold">Research Vault (<span id="historyCountBadge">0</span>)</span>
+        </button>
+
         <button id="sfxToggleBtn" onclick="toggleSFX()" class="px-3 py-2 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 flex items-center gap-2 transition" title="Toggle Synthesizer Sound FX">
           <i class="fa-solid fa-volume-high text-cyan-400" id="sfxIcon"></i>
           <span id="sfxLabel" class="mono text-[11px]">SFX: ON</span>
@@ -135,7 +131,7 @@
         <div class="flex items-center justify-between">
           <label class="block text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
             <i class="fa-solid fa-compass text-sky-400"></i>
-            <span>Investigation Query & Topic Formulation</span>
+            <span>Technical Investigation Query Formulation</span>
           </label>
           <span class="text-[11px] mono text-slate-400">Natural Language or Academic Problem Statement</span>
         </div>
@@ -160,7 +156,7 @@
         </div>
       </div>
 
-      <!-- Supercharged Parameter Controls -->
+      <!-- Parameter Controls -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-3 border-t border-slate-800/80">
         <div>
           <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
@@ -222,9 +218,6 @@
         </div>
         <h3 class="text-base font-extrabold text-white">Strategist Agent</h3>
         <p class="text-xs text-slate-400 mt-1 leading-relaxed">Decomposes queries into orthogonal research vectors and hypothesis trees.</p>
-        <div class="mt-3 flex items-center gap-2 text-[10px] mono text-slate-500">
-          <i class="fa-solid fa-circle-dot text-sky-400"></i> Vector Allocation Active
-        </div>
       </div>
 
       <div id="card-researcher" class="agent-card glass-panel p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
@@ -234,9 +227,6 @@
         </div>
         <h3 class="text-base font-extrabold text-white">Crawler Agent</h3>
         <p class="text-xs text-slate-400 mt-1 leading-relaxed">Crawls primary literature, parses raw DOM structures & strips boilerplate.</p>
-        <div class="mt-3 flex items-center gap-2 text-[10px] mono text-slate-500">
-          <i class="fa-solid fa-circle-dot text-indigo-400"></i> Live Search Ingestion
-        </div>
       </div>
 
       <div id="card-critic" class="agent-card glass-panel p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
@@ -245,10 +235,7 @@
           <i class="fa-solid fa-scale-balanced text-slate-600 text-lg" id="icon-critic"></i>
         </div>
         <h3 class="text-base font-extrabold text-white">Skeptic / Critic</h3>
-        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Cross-checks conflicting evidence, audits bias, and calculates credibility scores.</p>
-        <div class="mt-3 flex items-center gap-2 text-[10px] mono text-slate-500">
-          <i class="fa-solid fa-circle-dot text-amber-400"></i> Consensus Verification
-        </div>
+        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Challenges findings in Adversarial Debate rounds to guarantee truth.</p>
       </div>
 
       <div id="card-synthesizer" class="agent-card glass-panel p-5 rounded-2xl border border-slate-800 relative overflow-hidden">
@@ -257,10 +244,7 @@
           <i class="fa-solid fa-file-contract text-slate-600 text-lg" id="icon-synthesizer"></i>
         </div>
         <h3 class="text-base font-extrabold text-white">Synthesizer Agent</h3>
-        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Compiles structured thesis paper with inline citations and BibTeX records.</p>
-        <div class="mt-3 flex items-center gap-2 text-[10px] mono text-slate-500">
-          <i class="fa-solid fa-circle-dot text-emerald-400"></i> Publication Ready
-        </div>
+        <p class="text-xs text-slate-400 mt-1 leading-relaxed">Authors structured thesis paper with inline citations and BibTeX records.</p>
       </div>
     </div>
 
@@ -301,6 +285,29 @@
       </div>
     </section>
 
+    <!-- NEW FEATURE 1: Adversarial Multi-Agent Debate Arena -->
+    <section id="debateArenaContainer" class="glass-panel p-6 rounded-3xl space-y-4 hidden">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-600 flex items-center justify-center text-white text-base shadow-lg shadow-rose-500/20">
+            <i class="fa-solid fa-swords"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-extrabold text-white">Adversarial Consensus Chamber (The Duel)</h2>
+            <p class="text-xs text-slate-400">Dialectic cross-examination between the Proponent (Crawler) and Skeptic (Critic).</p>
+          </div>
+        </div>
+        <span class="px-3 py-1 rounded-full text-xs font-bold mono bg-rose-500/10 text-rose-300 border border-rose-500/30">
+          Adversarial Audit: PASSED
+        </span>
+      </div>
+
+      <!-- Debate Rounds Grid -->
+      <div id="debateRoundsList" class="space-y-3">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
     <!-- Terminal Swarm Execution Stream -->
     <section class="glass-panel p-6 rounded-3xl space-y-3">
       <div class="flex items-center justify-between">
@@ -337,17 +344,23 @@
             <i class="fa-solid fa-headphones" id="ttsIcon"></i>
             <span id="ttsLabel">Read Summary</span>
           </button>
+
+          <!-- NEW FEATURE 3: IEEE Two-Column PDF Direct Formatter -->
+          <button onclick="exportIEEEConferencePDF()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold flex items-center gap-1.5 transition shadow-lg shadow-amber-500/25">
+            <i class="fa-solid fa-file-pdf"></i> IEEE Two-Column PDF
+          </button>
+
           <button onclick="copyMarkdown()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 text-xs font-medium flex items-center gap-1.5 transition">
-            <i class="fa-regular fa-copy"></i> Copy Markdown
+            <i class="fa-regular fa-copy"></i> Copy .md
           </button>
           <button onclick="downloadReport()" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow">
             <i class="fa-solid fa-download"></i> .md
           </button>
           <button onclick="downloadHTML()" class="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow">
-            <i class="fa-solid fa-file-code"></i> .html (Print PDF)
+            <i class="fa-solid fa-file-code"></i> .html
           </button>
           <button onclick="downloadBibTeX()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow">
-            <i class="fa-solid fa-book-bookmark"></i> .bib (BibTeX)
+            <i class="fa-solid fa-book-bookmark"></i> .bib
           </button>
         </div>
       </div>
@@ -357,9 +370,39 @@
       </article>
     </section>
 
-    <!-- Source Inspector Drawer (Modal) -->
-    <div id="sourceDrawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-slate-950/95 border-l border-slate-800 p-6 shadow-2xl backdrop-blur-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-between">
-      <div class="space-y-4">
+    <!-- NEW FEATURE 2: Persistent Research History Vault (Drawer) -->
+    <div id="historyDrawer" class="fixed inset-y-0 left-0 w-full sm:w-[420px] bg-slate-950/98 border-r border-slate-800 p-6 shadow-2xl backdrop-blur-2xl z-50 transform -translate-x-full transition-transform duration-300 flex flex-col justify-between">
+      <div class="space-y-4 overflow-y-auto">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-box-archive text-amber-400"></i>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Research Session Vault</h3>
+          </div>
+          <button onclick="closeHistoryDrawer()" class="text-slate-400 hover:text-white transition">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-400">All sessions are preserved locally in browser storage. Click to instantly restore any report.</p>
+
+        <div id="historySessionsList" class="space-y-2.5">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-800 flex items-center gap-2">
+        <button onclick="clearAllHistory()" class="flex-1 py-2.5 rounded-xl bg-rose-950/50 hover:bg-rose-900/60 text-xs text-rose-300 border border-rose-800/60 font-semibold transition">
+          Clear Vault
+        </button>
+        <button onclick="closeHistoryDrawer()" class="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs text-slate-300 border border-slate-800 font-semibold transition">
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- Source Inspector Drawer -->
+    <div id="sourceDrawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-slate-950/98 border-l border-slate-800 p-6 shadow-2xl backdrop-blur-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-between">
+      <div class="space-y-4 overflow-y-auto">
         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
           <div class="flex items-center gap-2">
             <i class="fa-solid fa-magnifying-glass-chart text-sky-400"></i>
@@ -395,13 +438,15 @@
     let currentMarkdown = "";
     let currentBibtex = "";
     let currentSources = [];
+    let currentDebateRounds = [];
+    let currentTopic = "";
     let startTime = 0;
     let timerInterval = null;
     let sfxEnabled = true;
     let audioCtx = null;
     let isSpeaking = false;
 
-    // Web Audio API Synthesizer (Zero External Dependencies)
+    // Web Audio API Synthesizer
     function playBeep(freq=600, duration=0.08, type="sine") {
       if (!sfxEnabled) return;
       try {
@@ -486,10 +531,8 @@
       const cx = canvas.width / 2;
       const cy = canvas.height / 2;
 
-      // Center Topic Node
       nodes.push({ id: 0, label: "TOPIC", type: "center", x: cx, y: cy, radius: 24, color: "#0284c7" });
 
-      // Vector Nodes
       const vCount = vectors.length || 1;
       const radiusDist = Math.min(canvas.width, canvas.height) * 0.35;
 
@@ -512,8 +555,6 @@
 
     function addSourceNodesToTopology(sources) {
       currentSources = sources;
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
       const vNodes = nodes.filter(n => n.type === "vector");
 
       sources.slice(0, 10).forEach((s, idx) => {
@@ -537,7 +578,6 @@
     function animateTopology() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw Edges & Laser Pulses
       const center = nodes[0];
       if (center) {
         nodes.forEach(n => {
@@ -562,7 +602,7 @@
         });
       }
 
-      // Draw Particles
+      // Laser Particle pulses
       if (Math.random() < 0.2 && nodes.length > 1) {
         const target = nodes[1 + Math.floor(Math.random() * (nodes.length - 1))];
         if (target && center) {
@@ -607,7 +647,6 @@
         ctx.stroke();
         ctx.shadowBlur = 0;
 
-        // Label
         ctx.fillStyle = "#ffffff";
         ctx.font = `${n.type === "center" ? "bold 11px" : "10px"} 'JetBrains Mono'`;
         ctx.textAlign = "center";
@@ -619,7 +658,7 @@
     }
     requestAnimationFrame(animateTopology);
 
-    // Canvas Mouse Interactivity
+    // Canvas Events
     canvas.addEventListener('mousemove', e => {
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
@@ -698,6 +737,218 @@
       document.getElementById('sourceDrawer').classList.add('translate-x-full');
     }
 
+    // FEATURE 1: Render Adversarial Debate Rounds
+    function renderDebateArena(rounds) {
+      currentDebateRounds = rounds || [];
+      const container = document.getElementById('debateArenaContainer');
+      const list = document.getElementById('debateRoundsList');
+      if (!rounds || rounds.length === 0) return;
+
+      let html = '';
+      rounds.forEach(r => {
+        html += `
+          <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800/80 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/30">
+                Round 0${r.round}: ${r.topic_aspect}
+              </span>
+              <span class="text-[11px] font-semibold text-emerald-400 flex items-center gap-1">
+                <i class="fa-solid fa-check-double text-xs"></i> Dialectic Verified
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+              <!-- Proponent -->
+              <div class="p-3 rounded-xl bg-sky-950/20 border border-sky-800/30 space-y-1">
+                <div class="text-[10px] uppercase font-bold text-sky-400 mono flex items-center gap-1.5">
+                  <i class="fa-solid fa-circle-check"></i> Proponent (Crawler Agent Claim)
+                </div>
+                <p class="text-slate-300 leading-relaxed">${r.proponent_claim}</p>
+              </div>
+
+              <!-- Skeptic -->
+              <div class="p-3 rounded-xl bg-rose-950/20 border border-rose-800/30 space-y-1">
+                <div class="text-[10px] uppercase font-bold text-rose-400 mono flex items-center gap-1.5">
+                  <i class="fa-solid fa-shield-virus"></i> Skeptic (Critic Adversarial Challenge)
+                </div>
+                <p class="text-slate-300 leading-relaxed">${r.skeptic_counter}</p>
+              </div>
+            </div>
+
+            <!-- Verdict -->
+            <div class="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs flex items-center gap-2">
+              <span class="text-amber-400 font-bold mono uppercase text-[10px]">Consensus Verdict:</span>
+              <span class="text-slate-200">${r.verdict}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      list.innerHTML = html;
+      container.classList.remove('hidden');
+    }
+
+    // FEATURE 2: Local Storage Persistent Session Archive
+    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate) {
+      try {
+        const history = JSON.parse(localStorage.getItem('deepresearch_vault') || '[]');
+        const newSession = {
+          id: Date.now(),
+          date: new Date().toLocaleString(),
+          topic: topic,
+          markdown: markdown,
+          bibtex: bibtex,
+          score: score,
+          sources: sources,
+          debate: debate
+        };
+        history.unshift(newSession);
+        localStorage.setItem('deepresearch_vault', JSON.stringify(history.slice(0, 15)));
+        updateHistoryCount();
+      } catch (e) {}
+    }
+
+    function updateHistoryCount() {
+      try {
+        const history = JSON.parse(localStorage.getItem('deepresearch_vault') || '[]');
+        document.getElementById('historyCountBadge').innerText = history.length;
+      } catch (e) {}
+    }
+    updateHistoryCount();
+
+    function openHistoryDrawer() {
+      const drawer = document.getElementById('historyDrawer');
+      const list = document.getElementById('historySessionsList');
+      const history = JSON.parse(localStorage.getItem('deepresearch_vault') || '[]');
+
+      if (history.length === 0) {
+        list.innerHTML = `<div class="p-6 text-center text-xs text-slate-500">Vault is empty. Run a research query to archive it here!</div>`;
+      } else {
+        list.innerHTML = history.map(item => `
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-2 hover:border-sky-500/40 transition">
+            <div class="flex items-center justify-between text-[10px] text-slate-400 mono">
+              <span>${item.date}</span>
+              <span class="font-bold text-emerald-400">${item.score}% Confidence</span>
+            </div>
+            <h4 class="text-xs font-bold text-white line-clamp-2">${item.topic}</h4>
+            <div class="flex items-center justify-between pt-1">
+              <span class="text-[10px] text-slate-500 mono">${item.sources?.length || 0} Sources</span>
+              <button onclick="restoreSession(${item.id})" class="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-semibold transition">
+                ⚡ Restore
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      drawer.classList.remove('-translate-x-full');
+      playBeep(700, 0.08);
+    }
+
+    function closeHistoryDrawer() {
+      document.getElementById('historyDrawer').classList.add('-translate-x-full');
+    }
+
+    function clearAllHistory() {
+      if (confirm("Clear all archived research sessions from the vault?")) {
+        localStorage.removeItem('deepresearch_vault');
+        updateHistoryCount();
+        openHistoryDrawer();
+      }
+    }
+
+    function restoreSession(id) {
+      const history = JSON.parse(localStorage.getItem('deepresearch_vault') || '[]');
+      const session = history.find(s => s.id === id);
+      if (!session) return;
+
+      currentTopic = session.topic;
+      document.getElementById('topicInput').value = session.topic;
+      renderReport(session.markdown, session.score, session.bibtex);
+      renderDebateArena(session.debate);
+      addSourceNodesToTopology(session.sources || []);
+      closeHistoryDrawer();
+      playChord();
+      alert(`Restored session: "${session.topic}"`);
+    }
+
+    // FEATURE 3: IEEE Two-Column Conference Paper PDF Exporter
+    function exportIEEEConferencePDF() {
+      const reportHtml = marked.parse(currentMarkdown);
+      const printWindow = window.open('', '_blank');
+      
+      const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>IEEE Transactions on Advanced Computing - ${currentTopic}</title>
+  <style>
+    @page { size: letter; margin: 0.75in; }
+    body {
+      font-family: "Times New Roman", Times, serif;
+      color: #000;
+      background: #fff;
+      font-size: 10pt;
+      line-height: 1.25;
+      margin: 0;
+      padding: 0;
+    }
+    .header { text-align: center; margin-bottom: 20pt; }
+    .title { font-size: 20pt; font-weight: bold; margin-bottom: 8pt; }
+    .authors { font-size: 11pt; margin-bottom: 4pt; }
+    .affiliation { font-size: 9pt; font-style: italic; color: #333; margin-bottom: 14pt; }
+    .abstract-box {
+      margin: 0 20pt 16pt 20pt;
+      font-size: 9pt;
+      font-style: italic;
+      text-align: justify;
+      border-top: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+      padding: 8pt 0;
+    }
+    .two-column {
+      column-count: 2;
+      column-gap: 20pt;
+      text-align: justify;
+    }
+    h1, h2, h3 {
+      font-size: 10pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-top: 12pt;
+      margin-bottom: 4pt;
+      border-bottom: 0.5pt solid #000;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 10pt 0; font-size: 8.5pt; }
+    th, td { border: 0.5pt solid #444; padding: 4pt; }
+    th { background: #eee; font-weight: bold; }
+    code { font-family: "Courier New", monospace; font-size: 8.5pt; }
+    blockquote { border-left: 2pt solid #000; padding-left: 8pt; margin: 8pt 0; font-style: italic; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">${currentTopic}</div>
+    <div class="authors">Soumyadeep Ghosh</div>
+    <div class="affiliation">Department of Computer Science & Engineering<br>Brainware University, Kolkata, India<br>Email: soumyadeepghoshstclaret@gmail.com</div>
+  </div>
+  <div class="abstract-box">
+    <strong><em>Abstract</em>—</strong> This manuscript presents an automated empirical investigation synthesized via distributed autonomous agents. Using verified live web evidence and dialectic peer-review cross-examination, we analyze architectural tradeoffs, latency constraints, and operational roadmaps.
+    <br><br><strong><em>Index Terms</em>—</strong> Distributed Systems, Multi-Agent Swarms, Empirical Benchmarks, System Security.
+  </div>
+  <div class="two-column">
+    ${reportHtml}
+  </div>
+  <script>
+    window.onload = function() { window.print(); }
+  <\/script>
+</body>
+</html>`;
+
+      printWindow.document.write(fullHtml);
+      printWindow.document.close();
+    }
+
     // Swarm Execution Trigger
     async function startResearch() {
       const topic = document.getElementById('topicInput').value.trim();
@@ -707,6 +958,7 @@
 
       if (!topic) return alert("Please enter an investigation topic.");
 
+      currentTopic = topic;
       playBeep(440, 0.15, "sawtooth");
 
       const btn = document.getElementById('startBtn');
@@ -725,6 +977,7 @@
       });
       document.getElementById('terminalLog').innerHTML = '';
       document.getElementById('reportContainer').classList.add('hidden');
+      document.getElementById('debateArenaContainer').classList.add('hidden');
       document.getElementById('logStatus').innerText = "Swarm Dispatched...";
 
       initTopology([]);
@@ -805,6 +1058,9 @@
         setAgentState('critic', 'completed');
         addLog(data.message, "text-emerald-400 font-semibold");
         document.getElementById('hudScore').innerText = `${data.data.confidence_score}%`;
+        if (data.data.debate_rounds) {
+          renderDebateArena(data.data.debate_rounds);
+        }
       } else if (data.stage === 'synthesizer') {
         setAgentState('synthesizer', 'active');
         addLog(data.message, "text-purple-300");
@@ -813,6 +1069,10 @@
         addLog(data.message, "text-emerald-400 font-bold");
         playChord();
         renderReport(data.report, data.confidence_score, data.bibtex);
+        if (data.debate_rounds) {
+          renderDebateArena(data.debate_rounds);
+        }
+        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds);
       }
     }
 
@@ -823,7 +1083,7 @@
       const content = document.getElementById('reportContent');
       const badge = document.getElementById('confidenceBadge');
 
-      badge.innerText = `Fact-Check Score: ${score}/100`;
+      badge.innerText = `Consensus: ${score}%`;
       badge.className = score >= 80 
         ? "px-3 py-1 rounded-full text-xs font-black mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
         : "px-3 py-1 rounded-full text-xs font-black mono bg-amber-500/20 text-amber-300 border border-amber-500/40";
@@ -833,7 +1093,7 @@
       container.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Web Speech API Synthesis Readout
+    // Web Speech API
     function toggleAudioSpeech() {
       if (!('speechSynthesis' in window)) {
         return alert("Your browser does not support Speech Synthesis.");

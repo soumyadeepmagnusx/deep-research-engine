@@ -97,6 +97,7 @@ class ResearchOrchestrator:
             "report": report,
             "bibtex": bibtex,
             "confidence_score": critique["confidence_score"],
+            "debate_rounds": critique.get("debate_rounds", []),
             "source_count": len(all_evidences),
             "sources": [
                 {
