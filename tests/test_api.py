@@ -1,0 +1,18 @@
+"""API integration tests for DeepResearch Engine."""
+
+from starlette.testclient import TestClient
+from app import app
+
+client = TestClient(app)
+
+
+def test_health_check_endpoint():
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    assert response.json()["status"] == "healthy"
+
+
+def test_index_page():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "DeepResearch" in response.text
