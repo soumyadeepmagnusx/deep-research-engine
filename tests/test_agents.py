@@ -62,3 +62,56 @@ def test_orchestrator_pipeline_stream():
     assert final_event["stage"] == "completed"
     assert "report" in final_event
     assert len(final_event["report"]) > 100
+
+
+def test_search_cache_mechanism():
+    """Verify in-memory caching stores and retrieves queries without re-querying."""
+    from core.search_tools import SearchCache
+    cache = SearchCache(ttl_seconds=10)
+    mock_data = [{"title": "Cached Paper", "snippet": "Test", "url": "https://example.com"}]
+    
+    # Initial miss
+    assert cache.get("quantum computing") is None
+    assert cache.misses == 1
+    
+    # Store and hit
+    cache.set("quantum computing", mock_data)
+    hit_data = cache.get("quantum computing")
+    assert hit_data == mock_data
+    assert cache.hits == 1
+    
+    # Verify stats calculation
+    stats = cache.stats()
+    assert stats["hits"] == 1
+    assert stats["misses"] == 1
+    assert "50.0%" in stats["hit_ratio"]
+
+
+def test_critic_adversarial_debate_rounds():
+    """Verify critic agent generates structured adversarial debate dialectic rounds."""
+    llm = LLMClient(api_key=None)
+    critic = CriticAgent(llm)
+    mock_evidences = [
+        {"title": "PQC Key Exchange", "snippet": "ML-KEM standardized by NIST.", "url": "https://nist.gov"}
+    ]
+    audit = critic.audit_evidence("Post-Quantum Cryptography", mock_evidences)
+    assert "debate_rounds" in audit
+    rounds = audit["debate_rounds"]
+    assert len(rounds) >= 2
+    assert "proponent_claim" in rounds[0]
+    assert "skeptic_counter" in rounds[0]
+    assert "verdict" in rounds[0]
+
+
+def test_synthesizer_bibtex_generation():
+    """Verify synthesizer agent formats valid BibTeX citation blocks."""
+    llm = LLMClient(api_key=None)
+    synthesizer = SynthesizerAgent(llm)
+    mock_evidences = [
+        {"title": "Quantum Resistance 2026", "url": "https://arxiv.org/abs/2601.12345", "snippet": "NIST post-quantum cryptographic standards."}
+    ]
+    bibtex = synthesizer.generate_bibtex("Quantum Resistance", mock_evidences)
+    assert "@misc" in bibtex
+    assert "Quantum Resistance 2026" in bibtex
+    assert "arxiv.org" in bibtex
+
