@@ -11,11 +11,12 @@ from pydantic import BaseModel
 from typing import Optional
 
 from agents.orchestrator import ResearchOrchestrator
+from core.search_tools import get_search_cache_stats
 
 app = FastAPI(
     title="DeepResearch Swarm",
     description="Autonomous Multi-Agent Academic Research & Fact-Checked Paper Synthesis Engine",
-    version="1.2.0"
+    version="1.3.0"
 )
 
 # Enable CORS for local testing & cloud deployment
@@ -51,7 +52,18 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "DeepResearch Multi-Agent Swarm",
-        "version": "1.2.0"
+        "version": "1.3.0"
+    }
+
+
+@app.get("/api/metrics")
+async def get_metrics():
+    """Retrieve runtime swarm telemetry and cache statistics."""
+    return {
+        "status": "active",
+        "version": "1.3.0",
+        "cache": get_search_cache_stats(),
+        "runtime": "FastAPI + Multi-Agent Swarm"
     }
 
 

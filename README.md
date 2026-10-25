@@ -26,7 +26,8 @@ Unlike basic single-prompt chatbots, **DeepResearch Swarm** is built with modula
   - 🎓 *IEEE/ACM Peer-Reviewed Academic Paper*
   - 💼 *C-Suite Strategic Executive Whitepaper*
   - 🛡️ *Red-Team Adversarial Security Audit*
-- **📑 Multi-Format Academic Export Suite**: One-click export to Markdown (`.md`), formatted print-ready HTML (`.html`) for PDF generation, BibTeX citations (`.bib`), or clipboard copy.
+- **📑 Multi-Format Academic Export Suite**: One-click export to Markdown (`.md`), IEEE Two-Column PDF, formatted print-ready HTML (`.html`), BibTeX citations (`.bib`), machine-readable JSON Swarm Telemetry (`.json`), or clipboard copy.
+- **⚡ In-Memory Adaptive Caching**: TTL search cache with exponential backoff and hit-ratio telemetry exposed via `/api/metrics`.
 - **🔍 Slide-Out Evidence Inspector Drawer**: Click any node or citation to inspect raw extracted text, source URL, and credibility rating.
 - **🛡️ Zero-Fail Resilience**: Operates out-of-the-box with or without an active API key through deterministic heuristic modeling.
 
