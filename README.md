@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.14-3776AB.svg?style=flat&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.142.2-009688.svg?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Pytest](https://img.shields.io/badge/Tests-7%20Passed%20(100%25)-brightgreen.svg?style=flat&logo=pytest&logoColor=white)](tests/)
+[![Pytest](https://img.shields.io/badge/Tests-10%20Passed%20(100%25)-brightgreen.svg?style=flat&logo=pytest&logoColor=white)](tests/)
 [![UI](https://img.shields.io/badge/Frontend-Ultra%20Level%20Canvas%20%2B%20WebAudio-9333EA.svg?style=flat)](templates/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](LICENSE)
 [![Author](https://img.shields.io/badge/Author-Soumyadeep%20Ghosh-orange.svg?style=flat)](https://github.com/soumyadeepmagnusx)
@@ -28,7 +28,9 @@ Unlike basic single-prompt chatbots, **DeepResearch Swarm** is built with modula
   - 🛡️ *Red-Team Adversarial Security Audit*
 - **📑 Multi-Format Academic Export Suite**: One-click export to Markdown (`.md`), IEEE Two-Column PDF, formatted print-ready HTML (`.html`), BibTeX citations (`.bib`), machine-readable JSON Swarm Telemetry (`.json`), or clipboard copy.
 - **⚡ In-Memory Adaptive Caching**: TTL search cache with exponential backoff and hit-ratio telemetry exposed via `/api/metrics`.
-- **🔍 Slide-Out Evidence Inspector Drawer**: Click any node or citation to inspect raw extracted text, source URL, and credibility rating.
+- **🏷️ Automated Domain Authority Tiering**: Automated classification of source domains into *Peer-Reviewed / Academic*, *Standardization Body*, *Open-Source / Reference*, or *Technical Publication*.
+- **⏱️ Real-Time Reading & Token Metrics**: Computes exact word counts, estimated reading duration, and token density directly on the synthesis dashboard.
+- **🔍 Slide-Out Evidence Inspector Drawer**: Click any node or citation to inspect raw extracted text, source URL, credibility rating, and domain authority.
 - **🛡️ Zero-Fail Resilience**: Operates out-of-the-box with or without an active API key through deterministic heuristic modeling.
 
 ---

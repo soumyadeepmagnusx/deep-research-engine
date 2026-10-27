@@ -334,6 +334,10 @@
             <span id="confidenceBadge" class="px-3 py-1 rounded-full text-xs font-black mono border">
               Consensus: 92%
             </span>
+            <span id="readingMetricsBadge" class="px-3 py-1 rounded-full text-xs font-semibold mono bg-sky-500/10 text-sky-300 border border-sky-500/30 flex items-center gap-1.5 shadow-sm">
+              <i class="fa-regular fa-clock text-sky-400"></i>
+              <span id="readingMetricsText">⏱️ ~4 min read • ~950 words</span>
+            </span>
           </div>
           <p class="text-xs text-slate-400 mt-1">Cross-examined, peer-audited, and formatted with formal academic citations.</p>
         </div>
@@ -731,6 +735,13 @@
           <span class="text-[10px] uppercase font-bold text-slate-400 mono">Credibility Score</span>
           <span class="text-xs font-bold text-emerald-400 mono">${s.trust_score || 92}% / 100%</span>
         </div>
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+          <span class="text-[10px] uppercase font-bold text-slate-400 mono">Domain Authority</span>
+          <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold mono bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-indigo-400"></i>
+            ${s.authority_tag || "Technical Publication"}
+          </span>
+        </div>
       `;
       drawer.classList.remove('translate-x-full');
       playBeep(660, 0.08);
@@ -1090,6 +1101,16 @@
       badge.className = score >= 80 
         ? "px-3 py-1 rounded-full text-xs font-black mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
         : "px-3 py-1 rounded-full text-xs font-black mono bg-amber-500/20 text-amber-300 border border-amber-500/40";
+
+      // Compute dynamic reading metrics from synthesized report
+      const cleanWords = (markdown || "").trim().split(/\s+/).filter(Boolean);
+      const wordCount = cleanWords.length;
+      const readingMinutes = Math.max(1, Math.round(wordCount / 200));
+      const estTokens = Math.round(wordCount * 1.33);
+      const metricsText = document.getElementById('readingMetricsText');
+      if (metricsText) {
+        metricsText.innerText = `⏱️ ~${readingMinutes} min read • ${wordCount.toLocaleString()} words (~${estTokens.toLocaleString()} tokens)`;
+      }
 
       content.innerHTML = marked.parse(markdown);
       container.classList.remove('hidden');
