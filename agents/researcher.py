@@ -3,7 +3,7 @@ Executes search queries, crawls relevant web content, and aggregates verified ev
 """
 
 from typing import List, Dict, Any
-from core.search_tools import live_web_search, extract_web_content
+from core.search_tools import live_web_search, extract_web_content, categorize_source_authority
 
 
 class ResearcherAgent:
@@ -11,7 +11,7 @@ class ResearcherAgent:
         pass
 
     def execute_query(self, query: str) -> List[Dict[str, Any]]:
-        """Search the web for a specific query and extract content."""
+        """Search the web for a specific query and extract content with authority classification."""
         search_results = live_web_search(query, max_results=3)
         evidences = []
 
@@ -25,12 +25,15 @@ class ResearcherAgent:
             if url.startswith("http"):
                 page_text = extract_web_content(url, max_chars=800)
 
+            authority = categorize_source_authority(url)
+
             evidences.append({
                 "query": query,
                 "title": title,
                 "url": url,
                 "snippet": snippet,
-                "content": page_text or snippet
+                "content": page_text or snippet,
+                "authority_tag": authority
             })
 
         return evidences

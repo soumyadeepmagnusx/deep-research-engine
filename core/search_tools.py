@@ -124,3 +124,27 @@ def extract_web_content(url: str, max_chars: int = 1500) -> str:
     except Exception:
         pass
     return ""
+
+
+def categorize_source_authority(url: str) -> str:
+    """Classify source credibility tier based on primary domain authority."""
+    domain_lower = url.lower()
+    if any(k in domain_lower for k in ["arxiv.org", "ieee.org", "acm.org", "nature.com", "science.org", "biorxiv.org", "medrxiv.org"]):
+        return "Peer-Reviewed / Academic"
+    elif any(k in domain_lower for k in ["nist.gov", "ietf.org", "rfc-editor.org", "w3.org", "iso.org"]):
+        return "Standardization Body"
+    elif any(k in domain_lower for k in ["github.com", "kernel.org", "apache.org", "rust-lang.org", "python.org"]):
+        return "Open-Source / Reference"
+    return "Technical Publication"
+
+
+def compute_reading_metrics(text: str) -> Dict[str, Any]:
+    """Calculate word count, token estimation, and reading time."""
+    words = len(text.split())
+    minutes = max(1, round(words / 200))
+    return {
+        "word_count": words,
+        "char_count": len(text),
+        "est_reading_minutes": minutes,
+        "est_tokens": round(words * 1.33)
+    }

@@ -72,6 +72,7 @@ class ResearchOrchestrator:
                     "url": e["url"],
                     "snippet": e.get("snippet", ""),
                     "content": e.get("content", "")[:300],
+                    "authority_tag": e.get("authority_tag", "Technical Publication"),
                     "trust_score": e.get("trust_score", 92)
                 }
                 for idx, e in enumerate(all_evidences)
@@ -105,6 +106,7 @@ class ResearchOrchestrator:
                     "title": e["title"],
                     "url": e["url"],
                     "snippet": e.get("snippet", ""),
+                    "authority_tag": e.get("authority_tag", "Technical Publication"),
                     "trust_score": e.get("trust_score", 92)
                 }
                 for idx, e in enumerate(all_evidences)

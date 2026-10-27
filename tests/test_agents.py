@@ -3,7 +3,7 @@
 
 import pytest
 from core.llm_client import LLMClient
-from core.search_tools import live_web_search
+from core.search_tools import live_web_search, categorize_source_authority, compute_reading_metrics
 from agents.planner import PlannerAgent
 from agents.critic import CriticAgent
 from agents.synthesizer import SynthesizerAgent
@@ -114,4 +114,22 @@ def test_synthesizer_bibtex_generation():
     assert "@misc" in bibtex
     assert "Quantum Resistance 2026" in bibtex
     assert "arxiv.org" in bibtex
+
+
+def test_domain_authority_categorization():
+    """Verify URL domain authority tag assignment."""
+    assert categorize_source_authority("https://arxiv.org/abs/2401.0001") == "Peer-Reviewed / Academic"
+    assert categorize_source_authority("https://csrc.nist.gov/publications") == "Standardization Body"
+    assert categorize_source_authority("https://github.com/torvalds/linux") == "Open-Source / Reference"
+    assert categorize_source_authority("https://unknown-domain-random-1234.org") == "Technical Publication"
+
+
+def test_reading_metrics_computation():
+    """Verify reading time and token metric calculations."""
+    sample_text = "Word " * 450
+    metrics = compute_reading_metrics(sample_text)
+    assert metrics["word_count"] == 450
+    assert metrics["est_reading_minutes"] == 2
+    assert metrics["est_tokens"] > 500
+
 
