@@ -9,6 +9,7 @@ from core.search_tools import (
     compute_reading_metrics,
     deduplicate_evidence_claims
 )
+from core.session_store import SessionStore
 from agents.planner import PlannerAgent
 from agents.critic import CriticAgent
 from agents.synthesizer import SynthesizerAgent
@@ -163,6 +164,26 @@ def test_critic_executive_takeaways():
     takeaways = audit["executive_takeaways"]
     assert len(takeaways) >= 3
     assert any("Post-Quantum Cryptography" in t for t in takeaways)
+
+
+def test_session_store_ring_buffer():
+    """Verify session store maintains max entries and returns recent items in order."""
+    store = SessionStore(max_entries=3)
+    for i in range(5):
+        store.record_session(
+            topic=f"Topic {i}",
+            domain="Computer Science",
+            rigor_tone="Academic",
+            confidence_score=85 + i,
+            word_count=500 + i * 50,
+            source_count=4
+        )
+    recent = store.get_recent_sessions(limit=10)
+    assert len(recent) == 3
+    assert recent[0]["topic"] == "Topic 4"
+    assert recent[1]["topic"] == "Topic 3"
+    assert recent[2]["topic"] == "Topic 2"
+
 
 
 

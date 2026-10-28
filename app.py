@@ -4,14 +4,15 @@ Provides REST endpoints and Server-Sent Events (SSE) for streaming multi-agent e
 
 import json
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 from agents.orchestrator import ResearchOrchestrator
 from core.search_tools import get_search_cache_stats
+from core.session_store import GLOBAL_SESSION_STORE
 
 app = FastAPI(
     title="DeepResearch Swarm",
@@ -37,6 +38,13 @@ class ResearchRequest(BaseModel):
     domain: Optional[str] = "General"
     rigor_tone: Optional[str] = "Academic"
     api_key: Optional[str] = None
+
+
+class ExportRequest(BaseModel):
+    topic: str
+    content: str
+    export_format: str = "markdown"  # "markdown", "bibtex", or "json"
+
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -67,6 +75,37 @@ async def get_metrics():
     }
 
 
+@app.get("/api/sessions")
+async def get_sessions(limit: int = 10):
+    """Retrieve recent research execution history."""
+    return {
+        "sessions": GLOBAL_SESSION_STORE.get_recent_sessions(limit=limit),
+        "total_recorded": len(GLOBAL_SESSION_STORE.get_recent_sessions(limit=50))
+    }
+
+
+@app.post("/api/research/export")
+async def export_research_document(req: ExportRequest):
+    """Generate and stream formatted research artifact files for download."""
+    sanitized = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in req.topic.strip())[:40] or "research_paper"
+    
+    if req.export_format == "bibtex":
+        media_type = "application/x-bibtex"
+        filename = f"{sanitized}.bib"
+    elif req.export_format == "json":
+        media_type = "application/json"
+        filename = f"{sanitized}.json"
+    else:
+        media_type = "text/markdown; charset=utf-8"
+        filename = f"{sanitized}.md"
+
+    return Response(
+        content=req.content,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'}
+    )
+
+
 @app.post("/api/research/stream")
 async def stream_research(req: ResearchRequest):
     """Stream research pipeline events over Server-Sent Events (SSE)."""
@@ -82,6 +121,17 @@ async def stream_research(req: ResearchRequest):
             domain=req.domain or "General",
             rigor_tone=req.rigor_tone or "Academic"
         ):
+            if event.get("stage") == "completed":
+                report_text = event.get("report", "")
+                word_count = len(report_text.split())
+                GLOBAL_SESSION_STORE.record_session(
+                    topic=req.topic,
+                    domain=req.domain or "General",
+                    rigor_tone=req.rigor_tone or "Academic",
+                    confidence_score=event.get("confidence_score", 90),
+                    word_count=word_count,
+                    source_count=event.get("source_count", 0)
+                )
             payload = json.dumps(event)
             yield f"data: {payload}\n\n"
 
