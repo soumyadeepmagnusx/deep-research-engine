@@ -372,6 +372,22 @@
         </div>
       </div>
 
+      <!-- Executive Key Takeaways & Strategic Insights Callout -->
+      <div id="takeawaysContainer" class="p-5 rounded-2xl bg-gradient-to-r from-sky-950/40 via-indigo-950/30 to-purple-950/40 border border-sky-800/40 space-y-3 hidden shadow-lg">
+        <div class="flex items-center justify-between border-b border-sky-800/30 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="p-1.5 rounded-lg bg-sky-500/20 text-sky-400 text-xs">
+              <i class="fa-solid fa-lightbulb"></i>
+            </span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-sky-200">Executive Takeaways & Strategic Insights</h3>
+          </div>
+          <span class="text-[10px] mono text-sky-400/90 font-bold px-2 py-0.5 rounded bg-sky-500/10 border border-sky-500/20">Synthesized Takeaways</span>
+        </div>
+        <ul id="takeawaysList" class="space-y-2 text-xs text-slate-200">
+          <!-- Injected via JavaScript -->
+        </ul>
+      </div>
+
       <!-- Rendered Article -->
       <article id="reportContent" class="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed space-y-4">
       </article>
@@ -803,7 +819,7 @@
     }
 
     // FEATURE 2: Local Storage Persistent Session Archive
-    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate) {
+    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate, takeaways) {
       try {
         const history = JSON.parse(localStorage.getItem('deepresearch_vault') || '[]');
         const newSession = {
@@ -814,7 +830,8 @@
           bibtex: bibtex,
           score: score,
           sources: sources,
-          debate: debate
+          debate: debate,
+          takeaways: takeaways || []
         };
         history.unshift(newSession);
         localStorage.setItem('deepresearch_vault', JSON.stringify(history.slice(0, 15)));
@@ -878,7 +895,7 @@
 
       currentTopic = session.topic;
       document.getElementById('topicInput').value = session.topic;
-      renderReport(session.markdown, session.score, session.bibtex);
+      renderReport(session.markdown, session.score, session.bibtex, session.takeaways);
       renderDebateArena(session.debate);
       addSourceNodesToTopology(session.sources || []);
       closeHistoryDrawer();
@@ -1082,15 +1099,15 @@
         setAgentState('synthesizer', 'completed');
         addLog(data.message, "text-emerald-400 font-bold");
         playChord();
-        renderReport(data.report, data.confidence_score, data.bibtex);
+        renderReport(data.report, data.confidence_score, data.bibtex, data.executive_takeaways);
         if (data.debate_rounds) {
           renderDebateArena(data.debate_rounds);
         }
-        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds);
+        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds, data.executive_takeaways);
       }
     }
 
-    function renderReport(markdown, score, bibtex) {
+    function renderReport(markdown, score, bibtex, takeaways = []) {
       currentMarkdown = markdown;
       currentBibtex = bibtex || "";
       const container = document.getElementById('reportContainer');
@@ -1110,6 +1127,21 @@
       const metricsText = document.getElementById('readingMetricsText');
       if (metricsText) {
         metricsText.innerText = `⏱️ ~${readingMinutes} min read • ${wordCount.toLocaleString()} words (~${estTokens.toLocaleString()} tokens)`;
+      }
+
+      // Render Executive Takeaways if present
+      const takeawaysContainer = document.getElementById('takeawaysContainer');
+      const takeawaysList = document.getElementById('takeawaysList');
+      if (takeaways && takeaways.length > 0 && takeawaysContainer && takeawaysList) {
+        takeawaysList.innerHTML = takeaways.map(t => `
+          <li class="flex items-start gap-2.5">
+            <span class="text-sky-400 mt-0.5"><i class="fa-solid fa-circle-chevron-right text-[10px]"></i></span>
+            <span class="leading-relaxed text-slate-200">${t}</span>
+          </li>
+        `).join('');
+        takeawaysContainer.classList.remove('hidden');
+      } else if (takeawaysContainer) {
+        takeawaysContainer.classList.add('hidden');
       }
 
       content.innerHTML = marked.parse(markdown);
