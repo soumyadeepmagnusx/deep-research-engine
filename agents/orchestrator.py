@@ -5,6 +5,7 @@ Yields real-time events for live progress visualization with BibTeX and source g
 
 from typing import Dict, Any, Generator
 from core.llm_client import LLMClient
+from core.search_tools import deduplicate_evidence_claims
 from agents.planner import PlannerAgent
 from agents.researcher import ResearcherAgent
 from agents.critic import CriticAgent
@@ -62,6 +63,9 @@ class ResearchOrchestrator:
                 "message": f"🔍 Vector {i} extracted {len(evidences)} verified nodes."
             }
 
+        # Deduplicate evidence across overlapping vector queries
+        all_evidences = deduplicate_evidence_claims(all_evidences, similarity_threshold=0.65)
+
         yield {
             "stage": "research_done",
             "message": f"🔍 Crawler Agent: Indexed {len(all_evidences)} verified evidence nodes across all vectors.",
@@ -99,6 +103,7 @@ class ResearchOrchestrator:
             "bibtex": bibtex,
             "confidence_score": critique["confidence_score"],
             "debate_rounds": critique.get("debate_rounds", []),
+            "executive_takeaways": critique.get("executive_takeaways", []),
             "source_count": len(all_evidences),
             "sources": [
                 {

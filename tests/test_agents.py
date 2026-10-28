@@ -3,7 +3,12 @@
 
 import pytest
 from core.llm_client import LLMClient
-from core.search_tools import live_web_search, categorize_source_authority, compute_reading_metrics
+from core.search_tools import (
+    live_web_search,
+    categorize_source_authority,
+    compute_reading_metrics,
+    deduplicate_evidence_claims
+)
 from agents.planner import PlannerAgent
 from agents.critic import CriticAgent
 from agents.synthesizer import SynthesizerAgent
@@ -131,5 +136,33 @@ def test_reading_metrics_computation():
     assert metrics["word_count"] == 450
     assert metrics["est_reading_minutes"] == 2
     assert metrics["est_tokens"] > 500
+
+
+def test_evidence_deduplication():
+    """Verify that duplicate or near-identical evidence items are filtered."""
+    raw_evidences = [
+        {"title": "PQC Benchmark 2026", "snippet": "ML-KEM lattice key encapsulation benchmarking analysis and results."},
+        {"title": "PQC Benchmark 2026", "snippet": "ML-KEM lattice key encapsulation benchmarking analysis and results."},
+        {"title": "Decentralized Storage Protocols", "snippet": "Content addressing and IPFS distributed DHT DHT systems."}
+    ]
+    deduped = deduplicate_evidence_claims(raw_evidences, similarity_threshold=0.65)
+    assert len(deduped) == 2
+    assert deduped[0]["title"] == "PQC Benchmark 2026"
+    assert deduped[1]["title"] == "Decentralized Storage Protocols"
+
+
+def test_critic_executive_takeaways():
+    """Verify critic extracts structured executive takeaways."""
+    llm = LLMClient(api_key=None)
+    critic = CriticAgent(llm)
+    evidences = [
+        {"title": "Test Title", "snippet": "Test snippet details."}
+    ]
+    audit = critic.audit_evidence("Post-Quantum Cryptography", evidences)
+    assert "executive_takeaways" in audit
+    takeaways = audit["executive_takeaways"]
+    assert len(takeaways) >= 3
+    assert any("Post-Quantum Cryptography" in t for t in takeaways)
+
 
 

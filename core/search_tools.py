@@ -4,6 +4,7 @@ retry backoff, and deterministic offline knowledge fallback.
 """
 
 import time
+import re
 from typing import List, Dict, Any, Optional
 import requests
 from bs4 import BeautifulSoup
@@ -148,3 +149,33 @@ def compute_reading_metrics(text: str) -> Dict[str, Any]:
         "est_reading_minutes": minutes,
         "est_tokens": round(words * 1.33)
     }
+
+
+def deduplicate_evidence_claims(evidences: List[Dict[str, Any]], similarity_threshold: float = 0.65) -> List[Dict[str, Any]]:
+    """Filter near-duplicate evidence snippets using tokenized Jaccard similarity."""
+    def get_tokens(text: str) -> set:
+        return set(re.findall(r"\w+", (text or "").lower()))
+
+    unique_evidences: List[Dict[str, Any]] = []
+    seen_token_sets = []
+
+    for ev in evidences:
+        snippet = f"{ev.get('title', '')} {ev.get('snippet', '')}"
+        tokens = get_tokens(snippet)
+        if not tokens:
+            continue
+
+        is_duplicate = False
+        for seen_set in seen_token_sets:
+            intersection = len(tokens & seen_set)
+            union = len(tokens | seen_set)
+            if union > 0 and (intersection / union) >= similarity_threshold:
+                is_duplicate = True
+                break
+
+        if not is_duplicate:
+            unique_evidences.append(ev)
+            seen_token_sets.append(tokens)
+
+    return unique_evidences
+
