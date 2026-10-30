@@ -10,6 +10,7 @@ from core.search_tools import (
     deduplicate_evidence_claims
 )
 from core.session_store import SessionStore
+from core.analysis_tools import extract_key_concepts, compute_lexical_diversity
 from agents.planner import PlannerAgent
 from agents.critic import CriticAgent
 from agents.synthesizer import SynthesizerAgent
@@ -183,6 +184,31 @@ def test_session_store_ring_buffer():
     assert recent[0]["topic"] == "Topic 4"
     assert recent[1]["topic"] == "Topic 3"
     assert recent[2]["topic"] == "Topic 2"
+
+
+def test_extract_key_concepts():
+    """Verify extraction of key concepts, acronyms, and compound terms."""
+    sample_text = (
+        "Post-Quantum Cryptography (PQC) and ML-KEM lattice key encapsulation "
+        "provide quantum resilience. NIST standardization guidelines mandate PQC deployment."
+    )
+    concepts = extract_key_concepts(sample_text, top_n=5)
+    assert len(concepts) > 0
+    terms = [c["term"] for c in concepts]
+    assert "PQC" in terms or "NIST" in terms or "ML-KEM" in terms
+    assert all("relevance_score" in c for c in concepts)
+    assert all("category" in c for c in concepts)
+
+
+def test_compute_lexical_diversity():
+    """Verify computation of vocabulary richness and lexical density."""
+    sample_text = "Post-quantum algorithms replace classical RSA encryption across distributed financial ledgers."
+    stats = compute_lexical_diversity(sample_text)
+    assert stats["total_tokens"] > 0
+    assert stats["unique_terms"] > 0
+    assert 0.0 < stats["type_token_ratio"] <= 1.0
+    assert stats["lexical_density_percent"] > 0.0
+
 
 
 
