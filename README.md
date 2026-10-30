@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.14-3776AB.svg?style=flat&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.142.2-009688.svg?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Pytest](https://img.shields.io/badge/Tests-13%20Passed%20(100%25)-brightgreen.svg?style=flat&logo=pytest&logoColor=white)](tests/)
+[![Pytest](https://img.shields.io/badge/Tests-16%20Passed%20(100%25)-brightgreen.svg?style=flat&logo=pytest&logoColor=white)](tests/)
 [![UI](https://img.shields.io/badge/Frontend-Ultra%20Level%20Canvas%20%2B%20WebAudio-9333EA.svg?style=flat)](templates/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](LICENSE)
 [![Author](https://img.shields.io/badge/Author-Soumyadeep%20Ghosh-orange.svg?style=flat)](https://github.com/soumyadeepmagnusx)
@@ -31,6 +31,7 @@ Unlike basic single-prompt chatbots, **DeepResearch Swarm** is built with modula
 - **🏷️ Automated Domain Authority Tiering**: Automated classification of source domains into *Peer-Reviewed / Academic*, *Standardization Body*, *Open-Source / Reference*, or *Technical Publication*.
 - **✂️ Tokenized N-Gram Evidence Deduplication**: Automated Jaccard-overlap filtering to eliminate redundant evidence nodes across vector crawlers.
 - **💡 Executive Key Takeaways & Strategic Insights**: Real-time extraction of structured strategic takeaways highlighting core operational consensus and benchmark tradeoffs.
+- **🏷️ Technical Concept Taxonomy Matrix**: Real-time extraction of domain acronyms, compound technical n-grams, relevance ranking, and automated tabular index synthesis.
 - **⏱️ Real-Time Reading & Token Metrics**: Computes exact word counts, estimated reading duration, and token density directly on the synthesis dashboard.
 - **📥 Multi-Format Streaming Artifact Exporter & Session Store**: Dedicated `/api/research/export` streaming endpoint and in-memory ring-buffer session store (`/api/sessions`).
 - **🔍 Slide-Out Evidence Inspector Drawer**: Click any node or citation to inspect raw extracted text, source URL, credibility rating, and domain authority.
@@ -78,7 +79,9 @@ deep-research-engine/
 ├── core/
 │   ├── __init__.py
 │   ├── llm_client.py          # LLM client interface with heuristic fallback
-│   └── search_tools.py        # Live web crawling & extraction utilities
+│   ├── search_tools.py        # Live web crawling & extraction utilities
+│   ├── analysis_tools.py      # Technical concept extraction & lexical metrics
+│   └── session_store.py       # In-memory ring-buffer session store
 ├── templates/
 │   └── index.html             # Ultra-level glassmorphic UI with particle canvas & WebAudio
 ├── tests/

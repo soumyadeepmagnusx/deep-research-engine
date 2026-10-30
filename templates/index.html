@@ -388,6 +388,22 @@
         </ul>
       </div>
 
+      <!-- Interactive Key Concepts & Taxonomy Matrix -->
+      <div id="conceptsContainer" class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5 hidden">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 text-xs">
+              <i class="fa-solid fa-tags"></i>
+            </span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Technical Taxonomy & Key Concepts</h3>
+          </div>
+          <span id="conceptsCount" class="text-[10px] mono text-slate-400 font-semibold">0 identified</span>
+        </div>
+        <div id="conceptsCloud" class="flex flex-wrap gap-2 pt-1">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
       <!-- Rendered Article -->
       <article id="reportContent" class="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed space-y-4">
       </article>
@@ -819,7 +835,7 @@
     }
 
     // FEATURE 2: Local Storage Persistent Session Archive
-    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate, takeaways) {
+    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate, takeaways, concepts) {
       try {
         const history = JSON.parse(localStorage.getItem('deepresearch_vault') || '[]');
         const newSession = {
@@ -831,7 +847,8 @@
           score: score,
           sources: sources,
           debate: debate,
-          takeaways: takeaways || []
+          takeaways: takeaways || [],
+          concepts: concepts || []
         };
         history.unshift(newSession);
         localStorage.setItem('deepresearch_vault', JSON.stringify(history.slice(0, 15)));
@@ -895,7 +912,7 @@
 
       currentTopic = session.topic;
       document.getElementById('topicInput').value = session.topic;
-      renderReport(session.markdown, session.score, session.bibtex, session.takeaways);
+      renderReport(session.markdown, session.score, session.bibtex, session.takeaways, session.concepts);
       renderDebateArena(session.debate);
       addSourceNodesToTopology(session.sources || []);
       closeHistoryDrawer();
@@ -1099,15 +1116,15 @@
         setAgentState('synthesizer', 'completed');
         addLog(data.message, "text-emerald-400 font-bold");
         playChord();
-        renderReport(data.report, data.confidence_score, data.bibtex, data.executive_takeaways);
+        renderReport(data.report, data.confidence_score, data.bibtex, data.executive_takeaways, data.key_concepts);
         if (data.debate_rounds) {
           renderDebateArena(data.debate_rounds);
         }
-        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds, data.executive_takeaways);
+        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds, data.executive_takeaways, data.key_concepts);
       }
     }
 
-    function renderReport(markdown, score, bibtex, takeaways = []) {
+    function renderReport(markdown, score, bibtex, takeaways = [], concepts = []) {
       currentMarkdown = markdown;
       currentBibtex = bibtex || "";
       const container = document.getElementById('reportContainer');
@@ -1142,6 +1159,24 @@
         takeawaysContainer.classList.remove('hidden');
       } else if (takeawaysContainer) {
         takeawaysContainer.classList.add('hidden');
+      }
+
+      // Render Key Concepts & Taxonomy Matrix if present
+      const conceptsContainer = document.getElementById('conceptsContainer');
+      const conceptsCloud = document.getElementById('conceptsCloud');
+      const conceptsCount = document.getElementById('conceptsCount');
+      if (concepts && concepts.length > 0 && conceptsContainer && conceptsCloud) {
+        if (conceptsCount) conceptsCount.innerText = `${concepts.length} terms indexed`;
+        conceptsCloud.innerHTML = concepts.map(c => `
+          <span class="px-2.5 py-1 rounded-xl text-xs font-semibold mono bg-slate-950/80 border border-slate-700/80 hover:border-sky-500/60 transition cursor-default flex items-center gap-1.5 shadow-sm text-slate-200">
+            <span class="text-[10px] text-sky-400 font-bold">${c.category === 'ACRONYM' ? '⚡' : '📌'}</span>
+            <span>${c.term}</span>
+            <span class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-bold">${c.relevance_score}%</span>
+          </span>
+        `).join('');
+        conceptsContainer.classList.remove('hidden');
+      } else if (conceptsContainer) {
+        conceptsContainer.classList.add('hidden');
       }
 
       content.innerHTML = marked.parse(markdown);
