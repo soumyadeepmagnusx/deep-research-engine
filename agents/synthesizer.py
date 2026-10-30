@@ -5,6 +5,7 @@ citation-backed research report in GitHub Markdown format.
 
 from typing import List, Dict, Any
 from core.llm_client import LLMClient
+from core.analysis_tools import extract_key_concepts
 
 
 class SynthesizerAgent:
@@ -50,6 +51,13 @@ class SynthesizerAgent:
 
         report = self.llm.generate(prompt=prompt, system_instruction=system_instruction)
 
+        # Append structured taxonomy index if not present
+        if "## Technical Taxonomy" not in report and "### Technical Taxonomy" not in report:
+            corpus = f"{topic}\n" + " ".join(e.get('title', '') + " " + e.get('snippet', '') for e in evidences)
+            concepts = extract_key_concepts(corpus, top_n=6)
+            if concepts:
+                report += "\n\n" + self.generate_taxonomy_index(concepts)
+
         # Append structured bibliography if not present
         if "### References" not in report and "## References" not in report:
             bib = "\n\n## References & Verified Citations\n"
@@ -58,6 +66,21 @@ class SynthesizerAgent:
             report += bib
 
         return report
+
+    def generate_taxonomy_index(self, concepts: List[Dict[str, Any]]) -> str:
+        """Format an indexed technical taxonomy table for the synthesized publication."""
+        lines = [
+            "## Technical Taxonomy & Concept Index",
+            "",
+            "| Concept / Identifier | Classification | Relevance Index | Frequency |",
+            "| :--- | :--- | :--- | :--- |"
+        ]
+        for c in concepts:
+            lines.append(
+                f"| `{c['term']}` | **{c['category']}** | {c['relevance_score']}% | {c['frequency']}x |"
+            )
+        return "\n".join(lines)
+
 
     def generate_bibtex(self, topic: str, evidences: List[Dict[str, Any]]) -> str:
         """Generate formal BibTeX entries for academic citation management."""

@@ -210,6 +210,22 @@ def test_compute_lexical_diversity():
     assert stats["lexical_density_percent"] > 0.0
 
 
+def test_synthesizer_taxonomy_indexing():
+    """Verify synthesizer agent generates taxonomy markdown tables."""
+    llm = LLMClient(api_key=None)
+    synthesizer = SynthesizerAgent(llm)
+    mock_concepts = [
+        {"term": "ML-KEM", "category": "ACRONYM", "relevance_score": 95, "frequency": 4},
+        {"term": "Lattice Cryptography", "category": "COMPOUND_TERM", "relevance_score": 88, "frequency": 3}
+    ]
+    table = synthesizer.generate_taxonomy_index(mock_concepts)
+    assert "Technical Taxonomy" in table
+    assert "ML-KEM" in table
+    assert "ACRONYM" in table
+    assert "95%" in table
+
+
+
 
 
 

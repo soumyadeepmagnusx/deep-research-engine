@@ -124,13 +124,15 @@ async def stream_research(req: ResearchRequest):
             if event.get("stage") == "completed":
                 report_text = event.get("report", "")
                 word_count = len(report_text.split())
+                top_terms = [c["term"] for c in event.get("key_concepts", [])[:5]]
                 GLOBAL_SESSION_STORE.record_session(
                     topic=req.topic,
                     domain=req.domain or "General",
                     rigor_tone=req.rigor_tone or "Academic",
                     confidence_score=event.get("confidence_score", 90),
                     word_count=word_count,
-                    source_count=event.get("source_count", 0)
+                    source_count=event.get("source_count", 0),
+                    key_concepts=top_terms
                 )
             payload = json.dumps(event)
             yield f"data: {payload}\n\n"

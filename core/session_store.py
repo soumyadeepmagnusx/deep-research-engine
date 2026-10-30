@@ -3,7 +3,7 @@ In-memory ring buffer tracking active and completed multi-agent research session
 """
 
 import time
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 
 class SessionStore:
@@ -18,7 +18,8 @@ class SessionStore:
         rigor_tone: str,
         confidence_score: int,
         word_count: int,
-        source_count: int
+        source_count: int,
+        key_concepts: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """Record completed research execution in the ring buffer."""
         entry = {
@@ -29,6 +30,7 @@ class SessionStore:
             "confidence_score": confidence_score,
             "word_count": word_count,
             "source_count": source_count,
+            "key_concepts": key_concepts or [],
             "timestamp": time.time()
         }
         self._sessions.insert(0, entry)
