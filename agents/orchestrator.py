@@ -7,6 +7,7 @@ from typing import Dict, Any, Generator
 from core.llm_client import LLMClient
 from core.search_tools import deduplicate_evidence_claims
 from core.analysis_tools import extract_key_concepts, compute_lexical_diversity
+from core.verification_tools import detect_unsupported_claims
 from agents.planner import PlannerAgent
 from agents.researcher import ResearcherAgent
 from agents.critic import CriticAgent
@@ -102,6 +103,7 @@ class ResearchOrchestrator:
         corpus_text = f"{report}\n" + " ".join(e.get("snippet", "") for e in all_evidences)
         key_concepts = extract_key_concepts(corpus_text, top_n=8)
         lexical_stats = compute_lexical_diversity(report)
+        claim_verification = detect_unsupported_claims(report, all_evidences)
 
         yield {
             "stage": "completed",
@@ -113,6 +115,8 @@ class ResearchOrchestrator:
             "executive_takeaways": critique.get("executive_takeaways", []),
             "key_concepts": key_concepts,
             "lexical_stats": lexical_stats,
+            "verification_matrix": critique.get("verification_matrix", {}),
+            "claim_verification": claim_verification,
             "source_count": len(all_evidences),
             "sources": [
                 {

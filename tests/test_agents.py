@@ -254,6 +254,23 @@ def test_detect_unsupported_claims():
     assert stats["citation_density_percent"] > 50.0
 
 
+def test_critic_verification_matrix_integration():
+    """Verify critic agent incorporates cross-verification matrix in audit."""
+    llm = LLMClient(api_key=None)
+    critic = CriticAgent(llm)
+    evidences = [
+        {"id": 1, "title": "PQC Key Encapsulation", "snippet": "ML-KEM lattice cryptography."},
+        {"id": 2, "title": "NIST Standards 2026", "snippet": "Standardization of ML-KEM post-quantum cryptography."}
+    ]
+    audit = critic.audit_evidence("Post-Quantum Cryptography", evidences)
+    assert "verification_matrix" in audit
+    v_matrix = audit["verification_matrix"]
+    assert "consensus_index" in v_matrix
+    assert "corroborated_pairs_count" in v_matrix
+    assert 50 <= audit["confidence_score"] <= 100
+
+
+
 
 
 

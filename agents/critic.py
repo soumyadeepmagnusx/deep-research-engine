@@ -5,6 +5,7 @@ conducts an adversarial debate, and computes a Fact-Check Confidence Score.
 
 from typing import List, Dict, Any
 from core.llm_client import LLMClient
+from core.verification_tools import build_cross_verification_matrix
 
 
 class CriticAgent:
@@ -78,9 +79,15 @@ class CriticAgent:
             "Cross-citation audit verifies 90%+ source alignment across peer-reviewed and industrial reference corpora."
         ]
 
+        # Cross-source verification & corroboration analytics
+        verification_matrix = build_cross_verification_matrix(evidences)
+        blended_score = round(score * 0.7 + verification_matrix.get("consensus_index", 85) * 0.3)
+
         return {
             "audit_report": audit_text,
-            "confidence_score": score,
+            "confidence_score": blended_score,
+            "raw_audit_score": score,
             "debate_rounds": debate_rounds,
-            "executive_takeaways": takeaways
+            "executive_takeaways": takeaways,
+            "verification_matrix": verification_matrix
         }
