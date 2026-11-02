@@ -11,6 +11,7 @@ from core.search_tools import (
 )
 from core.session_store import SessionStore
 from core.analysis_tools import extract_key_concepts, compute_lexical_diversity
+from core.verification_tools import build_cross_verification_matrix, detect_unsupported_claims
 from agents.planner import PlannerAgent
 from agents.critic import CriticAgent
 from agents.synthesizer import SynthesizerAgent
@@ -223,6 +224,35 @@ def test_synthesizer_taxonomy_indexing():
     assert "ML-KEM" in table
     assert "ACRONYM" in table
     assert "95%" in table
+
+
+def test_cross_verification_matrix():
+    """Verify evidence cross-corroboration matrix and consensus index."""
+    mock_evidences = [
+        {"id": 1, "title": "NIST PQC Standards", "snippet": "ML-KEM lattice key exchange standardization by NIST."},
+        {"id": 2, "title": "Post-Quantum Migration", "snippet": "Migration to ML-KEM lattice cryptography in financial protocols."},
+        {"id": 3, "title": "Zero-Knowledge Rollups", "snippet": "Ethereum layer-2 state scaling via STARK proofs."}
+    ]
+    matrix = build_cross_verification_matrix(mock_evidences)
+    assert matrix["independent_sources_count"] == 3
+    assert matrix["corroborated_pairs_count"] >= 1
+    assert 50 <= matrix["consensus_index"] <= 100
+    assert len(matrix["graph_edges"]) >= 1
+
+
+def test_detect_unsupported_claims():
+    """Verify citation density and claim verification detection."""
+    report = (
+        "Post-Quantum Cryptography represents a critical security shift [1].\n\n"
+        "Lattice-based key exchange ensures quantum immunity [2].\n\n"
+        "Uncited speculative assertion without formal benchmarks."
+    )
+    evidences = [{"id": 1}, {"id": 2}]
+    stats = detect_unsupported_claims(report, evidences)
+    assert stats["total_citations_rendered"] == 2
+    assert stats["unique_sources_cited"] == 2
+    assert stats["citation_density_percent"] > 50.0
+
 
 
 
