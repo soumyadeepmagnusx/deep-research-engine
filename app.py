@@ -13,6 +13,7 @@ from typing import Optional, List
 from agents.orchestrator import ResearchOrchestrator
 from core.search_tools import get_search_cache_stats
 from core.session_store import GLOBAL_SESSION_STORE
+from core.presets import get_all_presets, get_preset_by_id
 
 app = FastAPI(
     title="DeepResearch Swarm",
@@ -82,6 +83,25 @@ async def get_sessions(limit: int = 10):
         "sessions": GLOBAL_SESSION_STORE.get_recent_sessions(limit=limit),
         "total_recorded": len(GLOBAL_SESSION_STORE.get_recent_sessions(limit=50))
     }
+
+
+@app.get("/api/presets")
+async def list_research_presets():
+    """Retrieve curated academic investigation presets."""
+    return {
+        "presets": get_all_presets(),
+        "total": len(get_all_presets())
+    }
+
+
+@app.get("/api/presets/{preset_id}")
+async def get_single_preset(preset_id: str):
+    """Retrieve a single research preset by ID."""
+    preset = get_preset_by_id(preset_id)
+    if not preset:
+        raise HTTPException(status_code=404, detail="Preset not found")
+    return preset
+
 
 
 @app.post("/api/research/export")

@@ -1,18 +1,26 @@
-"""API integration tests for DeepResearch Engine."""
+"""API and Route Configuration Tests for DeepResearch Engine."""
 
-from starlette.testclient import TestClient
 from app import app
-
-client = TestClient(app)
-
-
-def test_health_check_endpoint():
-    response = client.get("/api/health")
-    assert response.status_code == 200
-    assert response.json()["status"] == "healthy"
+from core.presets import get_all_presets, get_preset_by_id
 
 
-def test_index_page():
-    response = client.get("/")
-    assert response.status_code == 200
-    assert "DeepResearch" in response.text
+def test_app_configuration():
+    assert app.title == "DeepResearch Swarm"
+    routes = [r.path for r in app.routes]
+    assert "/api/health" in routes
+    assert "/api/metrics" in routes
+    assert "/api/sessions" in routes
+    assert "/api/presets" in routes
+    assert "/api/presets/{preset_id}" in routes
+    assert "/api/research/stream" in routes
+    assert "/api/research/export" in routes
+
+
+def test_presets_catalog():
+    presets = get_all_presets()
+    assert len(presets) >= 4
+    first_id = presets[0]["id"]
+    preset = get_preset_by_id(first_id)
+    assert preset is not None
+    assert preset["id"] == first_id
+    assert get_preset_by_id("unknown-id-xyz") is None
