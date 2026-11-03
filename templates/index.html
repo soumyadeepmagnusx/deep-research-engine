@@ -154,6 +154,32 @@
             <span>Dispatch Swarm</span>
           </button>
         </div>
+
+        <!-- Curated Quick-Launch Investigation Presets -->
+        <div class="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-t border-slate-800/50">
+          <div class="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+            <span>Curated Presets:</span>
+          </div>
+          <div class="flex flex-wrap gap-2" id="presetsBar">
+            <button type="button" onclick="loadPreset('pqc-migration')" class="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-sky-500/50 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition hover:scale-[1.02] active:scale-95 group shadow-sm">
+              <i class="fa-solid fa-shield-halved text-sky-400 text-[10px]"></i>
+              <span>PQC Migration 2030</span>
+            </button>
+            <button type="button" onclick="loadPreset('zk-rollups')" class="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-indigo-500/50 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition hover:scale-[1.02] active:scale-95 group shadow-sm">
+              <i class="fa-solid fa-cube text-indigo-400 text-[10px]"></i>
+              <span>ZK-Rollup Latency</span>
+            </button>
+            <button type="button" onclick="loadPreset('distributed-consensus')" class="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-emerald-500/50 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition hover:scale-[1.02] active:scale-95 group shadow-sm">
+              <i class="fa-solid fa-network-wired text-emerald-400 text-[10px]"></i>
+              <span>Paxos vs Raft BFT</span>
+            </button>
+            <button type="button" onclick="loadPreset('llm-inference')" class="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-purple-500/50 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition hover:scale-[1.02] active:scale-95 group shadow-sm">
+              <i class="fa-solid fa-microchip text-purple-400 text-[10px]"></i>
+              <span>Speculative Decoding</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Parameter Controls -->
@@ -553,6 +579,44 @@
     function setTopic(text) {
       document.getElementById('topicInput').value = text;
       playBeep(700, 0.05);
+    }
+
+    const PRESETS_DATA = {
+      'pqc-migration': {
+        topic: 'Post-Quantum Cryptography: Migration Bottlenecks for Financial Infrastructure by 2030',
+        domain: 'Cybersecurity & Cryptography',
+        depth: 4,
+        rigor: 'Academic'
+      },
+      'zk-rollups': {
+        topic: 'Zero-Knowledge STARKs vs SNARKs: Prover Overhead & Tail Latency in L2 Rollups',
+        domain: 'Distributed Systems & Cloud',
+        depth: 4,
+        rigor: 'Academic'
+      },
+      'distributed-consensus': {
+        topic: 'Byzantine Fault Tolerance Under Asynchronous Network Partitions: Paxos vs Raft Tradeoffs',
+        domain: 'Computer Systems & Architecture',
+        depth: 4,
+        rigor: 'Academic'
+      },
+      'llm-inference': {
+        topic: 'Speculative Decoding and PagedAttention: Memory Bandwidth Saturation in Multi-GPU Inference',
+        domain: 'Artificial Intelligence & Agents',
+        depth: 4,
+        rigor: 'Executive'
+      }
+    };
+
+    function loadPreset(presetId) {
+      const preset = PRESETS_DATA[presetId];
+      if (!preset) return;
+      document.getElementById('topicInput').value = preset.topic;
+      document.getElementById('domainSelect').value = preset.domain;
+      document.getElementById('depthSelect').value = preset.depth.toString();
+      document.getElementById('rigorSelect').value = preset.rigor;
+      playBeep(750, 0.08, 'triangle');
+      addLog(`[Preset] Loaded configuration profile: "${preset.topic.slice(0, 45)}..."`, "text-amber-400 font-semibold");
     }
 
     function addLog(msg, color="text-slate-300") {
