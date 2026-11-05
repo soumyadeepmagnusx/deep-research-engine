@@ -2,6 +2,7 @@
 
 from app import app
 from core.presets import get_all_presets, get_preset_by_id
+from core.export_tools import generate_standalone_html_publication, markdown_to_clean_html
 
 
 def test_app_configuration():
@@ -24,3 +25,21 @@ def test_presets_catalog():
     assert preset is not None
     assert preset["id"] == first_id
     assert get_preset_by_id("unknown-id-xyz") is None
+
+
+def test_html_export_generator():
+    topic = "Post-Quantum Cryptography Latency"
+    markdown = (
+        "## Abstract\n"
+        "This is an empirical evaluation of ML-KEM algorithms.\n\n"
+        "### Key Findings\n"
+        "- Finding 1: Minimal overhead in TLS 1.3\n"
+        "- Finding 2: Hardware acceleration improves throughput\n"
+    )
+    html = generate_standalone_html_publication(topic, markdown, {"domain": "Cryptography", "confidence_score": 95})
+    assert "<!DOCTYPE html>" in html
+    assert topic in html
+    assert "Soumyadeep Ghosh" in html
+    assert "two-column-layout" in html
+    assert "<h2>Abstract</h2>" in html
+    assert "Finding 1" in html

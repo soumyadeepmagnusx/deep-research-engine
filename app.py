@@ -14,6 +14,7 @@ from agents.orchestrator import ResearchOrchestrator
 from core.search_tools import get_search_cache_stats
 from core.session_store import GLOBAL_SESSION_STORE
 from core.presets import get_all_presets, get_preset_by_id
+from core.export_tools import generate_standalone_html_publication
 
 app = FastAPI(
     title="DeepResearch Swarm",
@@ -112,15 +113,22 @@ async def export_research_document(req: ExportRequest):
     if req.export_format == "bibtex":
         media_type = "application/x-bibtex"
         filename = f"{sanitized}.bib"
+        body_content = req.content
     elif req.export_format == "json":
         media_type = "application/json"
         filename = f"{sanitized}.json"
+        body_content = req.content
+    elif req.export_format == "html":
+        media_type = "text/html; charset=utf-8"
+        filename = f"{sanitized}.html"
+        body_content = generate_standalone_html_publication(req.topic, req.content)
     else:
         media_type = "text/markdown; charset=utf-8"
         filename = f"{sanitized}.md"
+        body_content = req.content
 
     return Response(
-        content=req.content,
+        content=body_content,
         media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{filename}"'}
     )
