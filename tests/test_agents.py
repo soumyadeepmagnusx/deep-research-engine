@@ -12,6 +12,7 @@ from core.search_tools import (
 from core.session_store import SessionStore
 from core.analysis_tools import extract_key_concepts, compute_lexical_diversity
 from core.verification_tools import build_cross_verification_matrix, detect_unsupported_claims
+from core.export_tools import generate_standalone_html_publication, markdown_to_clean_html
 from agents.planner import PlannerAgent
 from agents.critic import CriticAgent
 from agents.synthesizer import SynthesizerAgent
@@ -268,6 +269,22 @@ def test_critic_verification_matrix_integration():
     assert "consensus_index" in v_matrix
     assert "corroborated_pairs_count" in v_matrix
     assert 50 <= audit["confidence_score"] <= 100
+
+
+def test_export_tools_formatting_pipeline():
+    """Verify HTML publication generator formats codeblocks, headers, and metadata."""
+    md = "# Title\n\nSome text with `inline code`.\n\n```python\nprint('hello')\n```\n\n- Item 1\n- Item 2"
+    clean_html = markdown_to_clean_html(md)
+    assert "<h1>Title</h1>" in clean_html
+    assert "<code>inline code</code>" in clean_html
+    assert "<pre><code>" in clean_html
+    assert "<ul>" in clean_html
+
+    doc = generate_standalone_html_publication("Distributed Consensus Benchmarks", md)
+    assert "<!DOCTYPE html>" in doc
+    assert "Distributed Consensus Benchmarks" in doc
+    assert "Soumyadeep Ghosh" in doc
+
 
 
 
