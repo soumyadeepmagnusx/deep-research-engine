@@ -154,6 +154,7 @@ async def stream_research(req: ResearchRequest):
                 word_count = len(report_text.split())
                 top_terms = [c["term"] for c in event.get("key_concepts", [])[:5]]
                 v_score = event.get("verification_matrix", {}).get("consensus_index", event.get("confidence_score", 90))
+                obj_index = event.get("objectivity_index", 90)
                 GLOBAL_SESSION_STORE.record_session(
                     topic=req.topic,
                     domain=req.domain or "General",
@@ -162,7 +163,8 @@ async def stream_research(req: ResearchRequest):
                     word_count=word_count,
                     source_count=event.get("source_count", 0),
                     key_concepts=top_terms,
-                    verification_score=v_score
+                    verification_score=v_score,
+                    objectivity_index=obj_index
                 )
             payload = json.dumps(event)
             yield f"data: {payload}\n\n"

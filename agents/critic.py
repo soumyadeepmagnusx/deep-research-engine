@@ -6,6 +6,7 @@ conducts an adversarial debate, and computes a Fact-Check Confidence Score.
 from typing import List, Dict, Any
 from core.llm_client import LLMClient
 from core.verification_tools import build_cross_verification_matrix
+from core.bias_detector import compute_corpus_bias_distribution
 
 
 class CriticAgent:
@@ -83,11 +84,16 @@ class CriticAgent:
         verification_matrix = build_cross_verification_matrix(evidences)
         blended_score = round(score * 0.7 + verification_matrix.get("consensus_index", 85) * 0.3)
 
+        # Epistemic stance & bias distribution analytics
+        bias_analytics = compute_corpus_bias_distribution(evidences)
+
         return {
             "audit_report": audit_text,
             "confidence_score": blended_score,
             "raw_audit_score": score,
             "debate_rounds": debate_rounds,
             "executive_takeaways": takeaways,
-            "verification_matrix": verification_matrix
+            "verification_matrix": verification_matrix,
+            "bias_analytics": bias_analytics,
+            "objectivity_index": bias_analytics.get("objectivity_index", 90)
         }

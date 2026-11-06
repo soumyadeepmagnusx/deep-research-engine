@@ -316,6 +316,22 @@ def test_compute_corpus_bias_distribution():
     assert all("stance" in ev for ev in evidences)
 
 
+def test_critic_bias_and_objectivity_integration():
+    """Verify critic agent calculates and exposes bias analytics and objectivity index."""
+    llm = LLMClient(api_key=None)
+    critic = CriticAgent(llm)
+    evidences = [
+        {"title": "Empirical Benchmarking", "snippet": "Latency and throughput evaluated across GPU clusters.", "url": "https://arxiv.org"},
+        {"title": "Formal Hardness Reduction", "snippet": "Theorem lemma proof and complexity bound.", "url": "https://iacr.org"}
+    ]
+    audit = critic.audit_evidence("Post-Quantum Key Exchange", evidences)
+    assert "bias_analytics" in audit
+    assert "objectivity_index" in audit
+    assert 50 <= audit["objectivity_index"] <= 100
+    assert "stance_distribution" in audit["bias_analytics"]
+
+
+
 
 
 

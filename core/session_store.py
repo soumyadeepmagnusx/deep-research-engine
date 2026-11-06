@@ -20,7 +20,8 @@ class SessionStore:
         word_count: int,
         source_count: int,
         key_concepts: Optional[List[str]] = None,
-        verification_score: Optional[int] = None
+        verification_score: Optional[int] = None,
+        objectivity_index: Optional[int] = None
     ) -> Dict[str, Any]:
         """Record completed research execution in the ring buffer."""
         entry = {
@@ -33,6 +34,7 @@ class SessionStore:
             "source_count": source_count,
             "key_concepts": key_concepts or [],
             "verification_score": verification_score or confidence_score,
+            "objectivity_index": objectivity_index if objectivity_index is not None else 90,
             "timestamp": time.time()
         }
         self._sessions.insert(0, entry)

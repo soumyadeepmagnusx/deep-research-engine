@@ -117,6 +117,8 @@ class ResearchOrchestrator:
             "lexical_stats": lexical_stats,
             "verification_matrix": critique.get("verification_matrix", {}),
             "claim_verification": claim_verification,
+            "bias_analytics": critique.get("bias_analytics", {}),
+            "objectivity_index": critique.get("objectivity_index", 90),
             "source_count": len(all_evidences),
             "sources": [
                 {
@@ -125,7 +127,8 @@ class ResearchOrchestrator:
                     "url": e["url"],
                     "snippet": e.get("snippet", ""),
                     "authority_tag": e.get("authority_tag", "Technical Publication"),
-                    "trust_score": e.get("trust_score", 92)
+                    "trust_score": e.get("trust_score", 92),
+                    "stance": e.get("stance", "EMPIRICAL_BENCHMARK")
                 }
                 for idx, e in enumerate(all_evidences)
             ]
