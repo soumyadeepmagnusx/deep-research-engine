@@ -463,6 +463,39 @@
         </div>
       </div>
 
+      <!-- Epistemic Stance & Objectivity Radar -->
+      <div id="biasContainer" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-indigo-950/30 via-slate-900/60 to-purple-950/30 border border-indigo-800/40 space-y-3 hidden shadow-lg">
+        <div class="flex items-center justify-between border-b border-indigo-800/30 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 text-xs">
+              <i class="fa-solid fa-scale-balanced"></i>
+            </span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-indigo-200">Epistemic Stance & Objectivity Radar</h3>
+          </div>
+          <span id="objectivityBadgeCard" class="text-[10px] mono text-indigo-300 font-bold px-2.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/30">
+            Objectivity Index: 92%
+          </span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+            <span class="text-[10px] uppercase font-bold text-slate-400 mono block">Empirical Ratio</span>
+            <span id="biasEmpirical" class="text-sm font-extrabold text-sky-400 mono">0%</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+            <span class="text-[10px] uppercase font-bold text-slate-400 mono block">Theoretical Bound</span>
+            <span id="biasTheoretical" class="text-sm font-extrabold text-indigo-400 mono">0%</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+            <span class="text-[10px] uppercase font-bold text-slate-400 mono block">Critical Skepticism</span>
+            <span id="biasCritical" class="text-sm font-extrabold text-rose-400 mono">0%</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800/80">
+            <span class="text-[10px] uppercase font-bold text-slate-400 mono block">Commercial Advocacy</span>
+            <span id="biasAdvocacy" class="text-sm font-extrabold text-amber-400 mono">0%</span>
+          </div>
+        </div>
+      </div>
+
       <!-- Rendered Article -->
       <article id="reportContent" class="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed space-y-4">
       </article>
@@ -844,9 +877,17 @@
       }
     });
 
+    function getStanceBadgeStyle(stance) {
+      if (stance === "EMPIRICAL_BENCHMARK") return "bg-sky-500/10 text-sky-300 border-sky-500/30";
+      if (stance === "CRITICAL_SKEPTICISM") return "bg-rose-500/10 text-rose-300 border-rose-500/30";
+      if (stance === "COMMERCIAL_ADVOCACY") return "bg-amber-500/10 text-amber-300 border-amber-500/30";
+      return "bg-indigo-500/10 text-indigo-300 border-indigo-500/30";
+    }
+
     function openSourceDrawer(s) {
       const drawer = document.getElementById('sourceDrawer');
       const content = document.getElementById('drawerContent');
+      const stance = s.stance || "EMPIRICAL_BENCHMARK";
       content.innerHTML = `
         <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
           <span class="text-[10px] uppercase font-bold text-slate-400 mono">Title</span>
@@ -869,6 +910,13 @@
           <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold mono bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 flex items-center gap-1.5">
             <i class="fa-solid fa-shield-halved text-indigo-400"></i>
             ${s.authority_tag || "Technical Publication"}
+          </span>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+          <span class="text-[10px] uppercase font-bold text-slate-400 mono">Epistemic Stance</span>
+          <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold mono border flex items-center gap-1.5 ${getStanceBadgeStyle(stance)}">
+            <i class="fa-solid fa-scale-balanced"></i>
+            ${stance.replace(/_/g, " ")}
           </span>
         </div>
       `;
@@ -932,7 +980,7 @@
     }
 
     // FEATURE 2: Local Storage Persistent Session Archive
-    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate, takeaways, concepts, verification, claims) {
+    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate, takeaways, concepts, verification, claims, bias = null) {
       try {
         const history = JSON.parse(localStorage.getItem('deepresearch_vault') || '[]');
         const newSession = {
@@ -947,7 +995,8 @@
           takeaways: takeaways || [],
           concepts: concepts || [],
           verification: verification || null,
-          claims: claims || null
+          claims: claims || null,
+          bias: bias || null
         };
         history.unshift(newSession);
         localStorage.setItem('deepresearch_vault', JSON.stringify(history.slice(0, 15)));
@@ -1011,7 +1060,7 @@
 
       currentTopic = session.topic;
       document.getElementById('topicInput').value = session.topic;
-      renderReport(session.markdown, session.score, session.bibtex, session.takeaways, session.concepts, session.verification, session.claims);
+      renderReport(session.markdown, session.score, session.bibtex, session.takeaways, session.concepts, session.verification, session.claims, session.bias);
       renderDebateArena(session.debate);
       addSourceNodesToTopology(session.sources || []);
       closeHistoryDrawer();
@@ -1215,15 +1264,15 @@
         setAgentState('synthesizer', 'completed');
         addLog(data.message, "text-emerald-400 font-bold");
         playChord();
-        renderReport(data.report, data.confidence_score, data.bibtex, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification);
+        renderReport(data.report, data.confidence_score, data.bibtex, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics);
         if (data.debate_rounds) {
           renderDebateArena(data.debate_rounds);
         }
-        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification);
+        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics);
       }
     }
 
-    function renderReport(markdown, score, bibtex, takeaways = [], concepts = [], verification = null, claims = null) {
+    function renderReport(markdown, score, bibtex, takeaways = [], concepts = [], verification = null, claims = null, bias = null) {
       currentMarkdown = markdown;
       currentBibtex = bibtex || "";
       const container = document.getElementById('reportContainer');
@@ -1294,6 +1343,25 @@
         vContainer.classList.remove('hidden');
       } else if (vContainer) {
         vContainer.classList.add('hidden');
+      }
+
+      // Render Epistemic Stance & Objectivity Radar if present
+      const bContainer = document.getElementById('biasContainer');
+      if (bias && bContainer) {
+        const bBadge = document.getElementById('objectivityBadgeCard');
+        if (bBadge) bBadge.innerText = `Objectivity Index: ${bias.objectivity_index || 90}%`;
+        const dist = bias.stance_distribution || {};
+        const bEmp = document.getElementById('biasEmpirical');
+        if (bEmp) bEmp.innerText = `${dist.EMPIRICAL_BENCHMARK || 0}%`;
+        const bTheo = document.getElementById('biasTheoretical');
+        if (bTheo) bTheo.innerText = `${dist.THEORETICAL_FORMULATION || 0}%`;
+        const bCrit = document.getElementById('biasCritical');
+        if (bCrit) bCrit.innerText = `${dist.CRITICAL_SKEPTICISM || 0}%`;
+        const bAdv = document.getElementById('biasAdvocacy');
+        if (bAdv) bAdv.innerText = `${dist.COMMERCIAL_ADVOCACY || 0}%`;
+        bContainer.classList.remove('hidden');
+      } else if (bContainer) {
+        bContainer.classList.add('hidden');
       }
 
       content.innerHTML = marked.parse(markdown);
