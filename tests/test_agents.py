@@ -13,6 +13,7 @@ from core.session_store import SessionStore
 from core.analysis_tools import extract_key_concepts, compute_lexical_diversity
 from core.verification_tools import build_cross_verification_matrix, detect_unsupported_claims
 from core.export_tools import generate_standalone_html_publication, markdown_to_clean_html
+from core.bias_detector import analyze_source_stance, compute_corpus_bias_distribution
 from agents.planner import PlannerAgent
 from agents.critic import CriticAgent
 from agents.synthesizer import SynthesizerAgent
@@ -284,6 +285,36 @@ def test_export_tools_formatting_pipeline():
     assert "<!DOCTYPE html>" in doc
     assert "Distributed Consensus Benchmarks" in doc
     assert "Soumyadeep Ghosh" in doc
+
+
+def test_analyze_source_stance():
+    """Verify classification of epistemic research stance."""
+    emp_text = "Microbenchmarks show 35% throughput speedup and 12ms latency reduction on GPU clusters."
+    emp_res = analyze_source_stance(emp_text)
+    assert emp_res["primary_stance"] == "EMPIRICAL_BENCHMARK"
+    assert emp_res["empirical_score"] > 0
+    assert emp_res["objectivity_ratio"] >= 80.0
+
+    crit_text = "Severe side-channel leakage vulnerability and latency bottleneck detected under peak load."
+    crit_res = analyze_source_stance(crit_text)
+    assert crit_res["primary_stance"] == "CRITICAL_SKEPTICISM"
+    assert crit_res["critical_score"] > 0
+
+
+def test_compute_corpus_bias_distribution():
+    """Verify corpus-wide stance distribution and objectivity index computation."""
+    evidences = [
+        {"title": "PQC Benchmark", "snippet": "Measured throughput and latency microbenchmark dataset."},
+        {"title": "Theoretical Hardness", "snippet": "Mathematical proof and complexity bound reductions."},
+        {"title": "Security Vulnerability", "snippet": "Timing attack hazard and side-channel constraints."}
+    ]
+    dist = compute_corpus_bias_distribution(evidences)
+    assert "objectivity_index" in dist
+    assert "stance_distribution" in dist
+    assert 50 <= dist["objectivity_index"] <= 100
+    assert "EMPIRICAL_BENCHMARK" in dist["stance_distribution"]
+    assert all("stance" in ev for ev in evidences)
+
 
 
 
