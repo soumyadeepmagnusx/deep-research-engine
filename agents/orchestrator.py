@@ -8,6 +8,7 @@ from core.llm_client import LLMClient
 from core.search_tools import deduplicate_evidence_claims
 from core.analysis_tools import extract_key_concepts, compute_lexical_diversity
 from core.verification_tools import detect_unsupported_claims
+from core.gap_analyzer import identify_research_gaps, compute_frontier_maturity_index
 from agents.planner import PlannerAgent
 from agents.researcher import ResearcherAgent
 from agents.critic import CriticAgent
@@ -104,6 +105,8 @@ class ResearchOrchestrator:
         key_concepts = extract_key_concepts(corpus_text, top_n=8)
         lexical_stats = compute_lexical_diversity(report)
         claim_verification = detect_unsupported_claims(report, all_evidences)
+        research_gaps = identify_research_gaps(topic, report, all_evidences, critique.get("debate_rounds", []))
+        frontier_maturity = compute_frontier_maturity_index(research_gaps, confidence_score=critique.get("confidence_score", 88))
 
         yield {
             "stage": "completed",
@@ -119,6 +122,8 @@ class ResearchOrchestrator:
             "claim_verification": claim_verification,
             "bias_analytics": critique.get("bias_analytics", {}),
             "objectivity_index": critique.get("objectivity_index", 90),
+            "research_gaps": research_gaps,
+            "frontier_maturity": frontier_maturity,
             "source_count": len(all_evidences),
             "sources": [
                 {

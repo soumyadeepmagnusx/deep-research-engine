@@ -360,6 +360,23 @@ def test_frontier_maturity_index():
     assert res["maturity_tier"] in ["MATURE_CONSENSUS", "EMERGING_FRONTIER", "EXPERIMENTAL_PARADIGM"]
 
 
+def test_orchestrator_research_gaps_integration():
+    """Verify orchestrator stream attaches research_gaps and frontier_maturity to completed payload."""
+    orchestrator = ResearchOrchestrator(api_key=None)
+    completed_event = None
+    for event in orchestrator.run_stream("Fault-Tolerant Distributed Storage", depth=2):
+        if event.get("stage") == "completed":
+            completed_event = event
+            break
+
+    assert completed_event is not None
+    assert "research_gaps" in completed_event
+    assert "frontier_maturity" in completed_event
+    assert len(completed_event["research_gaps"]) >= 3
+    assert 50 <= completed_event["frontier_maturity"]["maturity_score"] <= 100
+
+
+
 
 
 
