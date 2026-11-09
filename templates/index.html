@@ -496,6 +496,25 @@
         </div>
       </div>
 
+      <!-- Open Research Gaps & Knowledge Frontier Horizon -->
+      <div id="gapsContainer" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-950/30 via-slate-900/60 to-rose-950/30 border border-purple-800/40 space-y-3 hidden shadow-lg">
+        <div class="flex items-center justify-between border-b border-purple-800/30 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="p-1.5 rounded-lg bg-purple-500/20 text-purple-400 text-xs">
+              <i class="fa-solid fa-compass-drafting"></i>
+            </span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-purple-200">Open Research Gaps & Knowledge Frontier</h3>
+          </div>
+          <span id="frontierMaturityBadge" class="text-[10px] mono text-purple-300 font-bold px-2.5 py-0.5 rounded bg-purple-500/10 border border-purple-500/30">
+            Frontier Maturity: 84%
+          </span>
+        </div>
+        <p class="text-xs text-slate-400">Unresolved inquiry vectors and open empirical questions identified during synthesis. Click any card to formulate a targeted follow-up query.</p>
+        <div id="gapsList" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
       <!-- Rendered Article -->
       <article id="reportContent" class="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed space-y-4">
       </article>
@@ -612,6 +631,16 @@
     function setTopic(text) {
       document.getElementById('topicInput').value = text;
       playBeep(700, 0.05);
+    }
+
+    function setTopicFromGap(query) {
+      const input = document.getElementById('topicInput');
+      if (input && query) {
+        input.value = query;
+        input.scrollIntoView({ behavior: 'smooth' });
+        input.focus();
+        playBeep(740, 0.08);
+      }
     }
 
     const PRESETS_DATA = {
@@ -980,7 +1009,7 @@
     }
 
     // FEATURE 2: Local Storage Persistent Session Archive
-    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate, takeaways, concepts, verification, claims, bias = null) {
+    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate, takeaways, concepts, verification, claims, bias = null, gaps = null, frontier = null) {
       try {
         const history = JSON.parse(localStorage.getItem('deepresearch_vault') || '[]');
         const newSession = {
@@ -996,7 +1025,9 @@
           concepts: concepts || [],
           verification: verification || null,
           claims: claims || null,
-          bias: bias || null
+          bias: bias || null,
+          gaps: gaps || null,
+          frontier: frontier || null
         };
         history.unshift(newSession);
         localStorage.setItem('deepresearch_vault', JSON.stringify(history.slice(0, 15)));
@@ -1060,7 +1091,7 @@
 
       currentTopic = session.topic;
       document.getElementById('topicInput').value = session.topic;
-      renderReport(session.markdown, session.score, session.bibtex, session.takeaways, session.concepts, session.verification, session.claims, session.bias);
+      renderReport(session.markdown, session.score, session.bibtex, session.takeaways, session.concepts, session.verification, session.claims, session.bias, session.gaps, session.frontier);
       renderDebateArena(session.debate);
       addSourceNodesToTopology(session.sources || []);
       closeHistoryDrawer();
@@ -1264,15 +1295,15 @@
         setAgentState('synthesizer', 'completed');
         addLog(data.message, "text-emerald-400 font-bold");
         playChord();
-        renderReport(data.report, data.confidence_score, data.bibtex, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics);
+        renderReport(data.report, data.confidence_score, data.bibtex, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics, data.research_gaps, data.frontier_maturity);
         if (data.debate_rounds) {
           renderDebateArena(data.debate_rounds);
         }
-        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics);
+        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics, data.research_gaps, data.frontier_maturity);
       }
     }
 
-    function renderReport(markdown, score, bibtex, takeaways = [], concepts = [], verification = null, claims = null, bias = null) {
+    function renderReport(markdown, score, bibtex, takeaways = [], concepts = [], verification = null, claims = null, bias = null, gaps = null, frontier = null) {
       currentMarkdown = markdown;
       currentBibtex = bibtex || "";
       const container = document.getElementById('reportContainer');
@@ -1362,6 +1393,43 @@
         bContainer.classList.remove('hidden');
       } else if (bContainer) {
         bContainer.classList.add('hidden');
+      }
+
+      // Render Open Research Gaps & Knowledge Frontier Horizon if present
+      const gContainer = document.getElementById('gapsContainer');
+      const gList = document.getElementById('gapsList');
+      if (gaps && gaps.length > 0 && gContainer && gList) {
+        const fBadge = document.getElementById('frontierMaturityBadge');
+        if (fBadge) {
+          const matScore = frontier ? frontier.maturity_score : 84;
+          const matTier = frontier ? frontier.maturity_tier.replace(/_/g, ' ') : 'EMERGING FRONTIER';
+          fBadge.innerText = `Frontier Maturity: ${matScore}% • ${matTier}`;
+        }
+        gList.innerHTML = gaps.map(g => `
+          <div onclick="setTopicFromGap('${g.follow_up_query.replace(/'/g, "\\'")}')" class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 hover:border-purple-500/60 transition cursor-pointer group shadow-sm flex flex-col justify-between space-y-2">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[9px] font-bold mono uppercase px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  ${g.category.replace(/_/g, ' ')}
+                </span>
+                <span class="text-[10px] font-bold mono ${g.priority === 'HIGH' ? 'text-rose-400' : 'text-amber-400'}">
+                  ${g.priority} PRIORITY
+                </span>
+              </div>
+              <h4 class="text-xs font-bold text-white group-hover:text-purple-300 transition leading-snug">${g.title}</h4>
+              <p class="text-[11px] text-slate-400 mt-1 leading-relaxed line-clamp-2">${g.description}</p>
+            </div>
+            <div class="pt-2 border-t border-slate-900 flex items-center justify-between text-[10px] text-slate-500 mono">
+              <span class="flex items-center gap-1 group-hover:text-sky-400 transition">
+                <i class="fa-solid fa-arrow-turn-down text-[9px]"></i> Follow-up Inquiry
+              </span>
+              <i class="fa-solid fa-magnifying-glass text-slate-600 group-hover:text-purple-400 transition"></i>
+            </div>
+          </div>
+        `).join('');
+        gContainer.classList.remove('hidden');
+      } else if (gContainer) {
+        gContainer.classList.add('hidden');
       }
 
       content.innerHTML = marked.parse(markdown);
