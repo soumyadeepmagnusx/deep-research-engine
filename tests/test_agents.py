@@ -14,6 +14,7 @@ from core.analysis_tools import extract_key_concepts, compute_lexical_diversity
 from core.verification_tools import build_cross_verification_matrix, detect_unsupported_claims
 from core.export_tools import generate_standalone_html_publication, markdown_to_clean_html
 from core.bias_detector import analyze_source_stance, compute_corpus_bias_distribution
+from core.gap_analyzer import identify_research_gaps, compute_frontier_maturity_index
 from agents.planner import PlannerAgent
 from agents.critic import CriticAgent
 from agents.synthesizer import SynthesizerAgent
@@ -329,6 +330,35 @@ def test_critic_bias_and_objectivity_integration():
     assert "objectivity_index" in audit
     assert 50 <= audit["objectivity_index"] <= 100
     assert "stance_distribution" in audit["bias_analytics"]
+
+
+def test_identify_research_gaps():
+    """Verify gap analyzer extracts structured open questions and follow-up queries."""
+    topic = "Post-Quantum Cryptographic Migration"
+    report = "Formal analysis of lattice-based schemes. Empirical overhead remains untested."
+    evidences = [{"title": "PQC Benchmark", "snippet": "Latency baseline results."}]
+    debates = [{"round": 1, "skeptic_counter": "Tail latency degrades under peak network contention."}]
+    
+    gaps = identify_research_gaps(topic, report, evidences, debates)
+    assert len(gaps) >= 3
+    assert any(g["category"] == "EMPIRICAL_EVALUATION_GAP" for g in gaps)
+    assert any(g["category"] == "SECURITY_UNCERTAINTY" for g in gaps)
+    assert all("follow_up_query" in g and "priority" in g for g in gaps)
+
+
+def test_frontier_maturity_index():
+    """Verify computation of frontier maturity score and priority breakdown."""
+    mock_gaps = [
+        {"id": "g1", "category": "EMPIRICAL_EVALUATION_GAP", "priority": "HIGH"},
+        {"id": "g2", "category": "SCALABILITY_LIMITATION", "priority": "MEDIUM"}
+    ]
+    res = compute_frontier_maturity_index(mock_gaps, confidence_score=85)
+    assert "maturity_score" in res
+    assert 50 <= res["maturity_score"] <= 100
+    assert res["active_gaps_count"] == 2
+    assert res["high_priority_gaps"] == 1
+    assert res["maturity_tier"] in ["MATURE_CONSENSUS", "EMERGING_FRONTIER", "EXPERIMENTAL_PARADIGM"]
+
 
 
 
