@@ -124,6 +124,8 @@ class ResearchOrchestrator:
             "objectivity_index": critique.get("objectivity_index", 90),
             "research_gaps": research_gaps,
             "frontier_maturity": frontier_maturity,
+            "tradeoff_matrix": critique.get("tradeoff_matrix", {}),
+            "decision_confidence": critique.get("decision_confidence", 85),
             "source_count": len(all_evidences),
             "sources": [
                 {

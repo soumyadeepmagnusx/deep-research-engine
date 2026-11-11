@@ -411,6 +411,21 @@ def test_compute_pareto_balance_score():
     assert score2 < score1
 
 
+def test_critic_tradeoff_integration():
+    """Verify critic agent evaluates architectural tradeoffs and computes decision confidence."""
+    llm = LLMClient(api_key=None)
+    critic = CriticAgent(llm)
+    evidences = [
+        {"title": "Lattice PQC Benchmark", "snippet": "Execution latency evaluated against classical ECC.", "url": "https://nist.gov"}
+    ]
+    audit = critic.audit_evidence("Lattice Post-Quantum Cryptography", evidences)
+    assert "tradeoff_matrix" in audit
+    assert "decision_confidence" in audit
+    assert len(audit["tradeoff_matrix"]["dimensions"]) >= 4
+    assert 50 <= audit["decision_confidence"] <= 100
+
+
+
 
 
 

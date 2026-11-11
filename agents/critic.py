@@ -7,6 +7,7 @@ from typing import List, Dict, Any
 from core.llm_client import LLMClient
 from core.verification_tools import build_cross_verification_matrix
 from core.bias_detector import compute_corpus_bias_distribution
+from core.tradeoff_evaluator import extract_tradeoff_matrix
 
 
 class CriticAgent:
@@ -87,6 +88,9 @@ class CriticAgent:
         # Epistemic stance & bias distribution analytics
         bias_analytics = compute_corpus_bias_distribution(evidences)
 
+        # Architectural tradeoffs & Pareto optimality
+        tradeoffs = extract_tradeoff_matrix(topic, audit_text, evidences)
+
         return {
             "audit_report": audit_text,
             "confidence_score": blended_score,
@@ -95,5 +99,7 @@ class CriticAgent:
             "executive_takeaways": takeaways,
             "verification_matrix": verification_matrix,
             "bias_analytics": bias_analytics,
-            "objectivity_index": bias_analytics.get("objectivity_index", 90)
+            "objectivity_index": bias_analytics.get("objectivity_index", 90),
+            "tradeoff_matrix": tradeoffs,
+            "decision_confidence": tradeoffs.get("decision_confidence", 85)
         }
