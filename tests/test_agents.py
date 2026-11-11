@@ -15,6 +15,7 @@ from core.verification_tools import build_cross_verification_matrix, detect_unsu
 from core.export_tools import generate_standalone_html_publication, markdown_to_clean_html
 from core.bias_detector import analyze_source_stance, compute_corpus_bias_distribution
 from core.gap_analyzer import identify_research_gaps, compute_frontier_maturity_index
+from core.tradeoff_evaluator import extract_tradeoff_matrix, compute_pareto_balance_score
 from agents.planner import PlannerAgent
 from agents.critic import CriticAgent
 from agents.synthesizer import SynthesizerAgent
@@ -374,6 +375,41 @@ def test_orchestrator_research_gaps_integration():
     assert "frontier_maturity" in completed_event
     assert len(completed_event["research_gaps"]) >= 3
     assert 50 <= completed_event["frontier_maturity"]["maturity_score"] <= 100
+
+
+def test_extract_tradeoff_matrix():
+    """Verify tradeoff matrix extraction across architectural dimensions."""
+    topic = "Rust vs C++ Ultra-Low Latency Trading"
+    report = "Microbenchmarks show low execution latency with strict memory safety guarantees."
+    evidences = [{"title": "Memory Benchmark", "snippet": "Low RSS footprint."}]
+    matrix = extract_tradeoff_matrix(topic, report, evidences)
+
+    assert "decision_confidence" in matrix
+    assert "pareto_frontier" in matrix
+    assert "dimensions" in matrix
+    assert len(matrix["dimensions"]) == 5
+    assert 50 <= matrix["decision_confidence"] <= 100
+    assert matrix["pareto_frontier"] in ["PARETO_OPTIMAL", "BALANCED_TRADEOFF", "SPECIALIZED_NICHE"]
+    assert any("Latency" in d["dimension"] for d in matrix["dimensions"])
+
+
+def test_compute_pareto_balance_score():
+    """Verify Pareto score aggregation with penalty on dimensional bottlenecks."""
+    balanced_dims = [
+        {"dimension": "D1", "score": 85},
+        {"dimension": "D2", "score": 88},
+        {"dimension": "D3", "score": 80}
+    ]
+    score1 = compute_pareto_balance_score(balanced_dims)
+    assert 80 <= score1 <= 90
+
+    bottleneck_dims = [
+        {"dimension": "D1", "score": 85},
+        {"dimension": "D2", "score": 55}  # severe bottleneck
+    ]
+    score2 = compute_pareto_balance_score(bottleneck_dims)
+    assert score2 < score1
+
 
 
 
