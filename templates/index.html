@@ -515,6 +515,25 @@
         </div>
       </div>
 
+      <!-- Architectural Tradeoffs & Pareto Frontier Matrix -->
+      <div id="tradeoffContainer" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-950/30 via-slate-900/60 to-orange-950/30 border border-amber-800/40 space-y-3 hidden shadow-lg">
+        <div class="flex items-center justify-between border-b border-amber-800/30 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="p-1.5 rounded-lg bg-amber-500/20 text-amber-400 text-xs">
+              <i class="fa-solid fa-chart-column"></i>
+            </span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-amber-200">Architectural Tradeoff & Pareto Frontier</h3>
+          </div>
+          <span id="paretoFrontierBadge" class="text-[10px] mono text-amber-300 font-bold px-2.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">
+            Pareto Frontier: 86% • PARETO OPTIMAL
+          </span>
+        </div>
+        <p class="text-xs text-slate-400">Comparative assessment across latency, throughput, memory overhead, resilience, and operational complexity.</p>
+        <div id="tradeoffsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
       <!-- Rendered Article -->
       <article id="reportContent" class="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed space-y-4">
       </article>
@@ -1009,7 +1028,7 @@
     }
 
     // FEATURE 2: Local Storage Persistent Session Archive
-    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate, takeaways, concepts, verification, claims, bias = null, gaps = null, frontier = null) {
+    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate, takeaways, concepts, verification, claims, bias = null, gaps = null, frontier = null, tradeoffs = null) {
       try {
         const history = JSON.parse(localStorage.getItem('deepresearch_vault') || '[]');
         const newSession = {
@@ -1027,7 +1046,8 @@
           claims: claims || null,
           bias: bias || null,
           gaps: gaps || null,
-          frontier: frontier || null
+          frontier: frontier || null,
+          tradeoffs: tradeoffs || null
         };
         history.unshift(newSession);
         localStorage.setItem('deepresearch_vault', JSON.stringify(history.slice(0, 15)));
@@ -1091,7 +1111,7 @@
 
       currentTopic = session.topic;
       document.getElementById('topicInput').value = session.topic;
-      renderReport(session.markdown, session.score, session.bibtex, session.takeaways, session.concepts, session.verification, session.claims, session.bias, session.gaps, session.frontier);
+      renderReport(session.markdown, session.score, session.bibtex, session.takeaways, session.concepts, session.verification, session.claims, session.bias, session.gaps, session.frontier, session.tradeoffs);
       renderDebateArena(session.debate);
       addSourceNodesToTopology(session.sources || []);
       closeHistoryDrawer();
@@ -1295,15 +1315,15 @@
         setAgentState('synthesizer', 'completed');
         addLog(data.message, "text-emerald-400 font-bold");
         playChord();
-        renderReport(data.report, data.confidence_score, data.bibtex, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics, data.research_gaps, data.frontier_maturity);
+        renderReport(data.report, data.confidence_score, data.bibtex, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics, data.research_gaps, data.frontier_maturity, data.tradeoff_matrix);
         if (data.debate_rounds) {
           renderDebateArena(data.debate_rounds);
         }
-        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics, data.research_gaps, data.frontier_maturity);
+        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics, data.research_gaps, data.frontier_maturity, data.tradeoff_matrix);
       }
     }
 
-    function renderReport(markdown, score, bibtex, takeaways = [], concepts = [], verification = null, claims = null, bias = null, gaps = null, frontier = null) {
+    function renderReport(markdown, score, bibtex, takeaways = [], concepts = [], verification = null, claims = null, bias = null, gaps = null, frontier = null, tradeoffs = null) {
       currentMarkdown = markdown;
       currentBibtex = bibtex || "";
       const container = document.getElementById('reportContainer');
@@ -1430,6 +1450,45 @@
         gContainer.classList.remove('hidden');
       } else if (gContainer) {
         gContainer.classList.add('hidden');
+      }
+
+      // Render Architectural Tradeoff & Pareto Frontier Matrix if present
+      const tContainer = document.getElementById('tradeoffContainer');
+      const tList = document.getElementById('tradeoffsList');
+      if (tradeoffs && tradeoffs.dimensions && tContainer && tList) {
+        const pBadge = document.getElementById('paretoFrontierBadge');
+        if (pBadge) {
+          const decConf = tradeoffs.decision_confidence || 85;
+          const frontier = (tradeoffs.pareto_frontier || 'PARETO_OPTIMAL').replace(/_/g, ' ');
+          pBadge.innerText = `Decision Confidence: ${decConf}% • ${frontier}`;
+        }
+        tList.innerHTML = tradeoffs.dimensions.map(dim => {
+          const tierColor = dim.optimality_tier === 'ADVANTAGE' 
+            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' 
+            : (dim.optimality_tier === 'BOTTLENECK' 
+                ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' 
+                : 'bg-amber-500/20 text-amber-300 border-amber-500/30');
+          return `
+            <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 hover:border-amber-500/50 transition flex flex-col justify-between space-y-2">
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <h4 class="text-xs font-bold text-white">${dim.dimension}</h4>
+                  <span class="text-[9px] font-bold mono uppercase px-1.5 py-0.5 rounded ${tierColor} border">
+                    ${dim.optimality_tier}
+                  </span>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-snug">${dim.description}</p>
+              </div>
+              <div class="pt-2 border-t border-slate-900/80 flex items-center justify-between">
+                <span class="text-[11px] font-medium text-amber-300/90 mono">${dim.qualitative_impact}</span>
+                <span class="text-xs font-black mono text-emerald-400">${dim.score}%</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+        tContainer.classList.remove('hidden');
+      } else if (tContainer) {
+        tContainer.classList.add('hidden');
       }
 
       content.innerHTML = marked.parse(markdown);
