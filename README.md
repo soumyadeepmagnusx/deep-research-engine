@@ -2,7 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.14-3776AB.svg?style=flat&logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.142.2-009688.svg?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Pytest](https://img.shields.io/badge/Tests-32%20Passed%20(100%25)-brightgreen.svg?style=flat&logo=pytest&logoColor=white)](tests/)
+[![Pytest](https://img.shields.io/badge/Tests-35%20Passed%20(100%25)-brightgreen.svg?style=flat&logo=pytest&logoColor=white)](tests/)
 [![UI](https://img.shields.io/badge/Frontend-Ultra%20Level%20Canvas%20%2B%20WebAudio-9333EA.svg?style=flat)](templates/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](LICENSE)
 [![Author](https://img.shields.io/badge/Author-Soumyadeep%20Ghosh-orange.svg?style=flat)](https://github.com/soumyadeepmagnusx)
@@ -36,6 +36,7 @@ Unlike basic single-prompt chatbots, **DeepResearch Swarm** is built with modula
 - **📊 Epistemic Stance Analysis & Objectivity Radar**: Real-time classification of source claims across empirical benchmarks, theoretical formulations, critical skepticism, and commercial advocacy with corpus objectivity scoring.
 - **🔭 Knowledge Frontier & Open Research Gaps Horizon**: Automatically extracts unresolved technical problems, unverified edge-cases, and empirical gaps into structured inquiry vectors with follow-up query dispatch and frontier maturity indexing.
 - **⚖️ Architectural Tradeoffs & Pareto Frontier Matrix**: Automatically evaluates empirical tradeoffs across execution speed, throughput, memory overhead, Byzantine resilience, and operational complexity with Pareto optimality categorization.
+- **🔬 Academic Reproducibility & Experimental Integrity Auditor**: Evaluates research claims against ACM/IEEE artifact badging criteria (code provenance, dataset openness, platform precision, variance rigor, baseline parity) with automated methodological risk indicators.
 - **⚡ Curated Research Presets & Quick-Launch Chips**: One-click investigation profiles (PQC Migration 2030, ZK-Rollups, Paxos vs Raft, LLM Inference) via `GET /api/presets` with automated tone and vector configuration.
 - **📄 Standalone IEEE Publication Generator**: Server-side conversion to self-contained, publication-grade HTML documents (`POST /api/research/export`) featuring two-column academic layouts and offline styling.
 - **⏱️ Real-Time Reading & Token Metrics**: Computes exact word counts, estimated reading duration, and token density directly on the synthesis dashboard.
@@ -93,6 +94,7 @@ deep-research-engine/
 │   ├── bias_detector.py       # Epistemic stance classification & objectivity scoring
 │   ├── gap_analyzer.py        # Research gap detection & knowledge frontier scoring
 │   ├── tradeoff_evaluator.py  # Empirical tradeoff analysis & Pareto frontier classification
+│   ├── reproducibility_checker.py # Academic reproducibility & experimental integrity auditor
 │   └── session_store.py       # In-memory ring-buffer session store
 ├── templates/
 │   └── index.html             # Ultra-level glassmorphic UI with particle canvas & WebAudio
