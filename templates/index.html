@@ -534,6 +534,25 @@
         </div>
       </div>
 
+      <!-- Experimental Reproducibility & Integrity Radar -->
+      <div id="reproducibilityContainer" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-teal-950/30 via-slate-900/60 to-cyan-950/30 border border-teal-800/40 space-y-3 hidden shadow-lg">
+        <div class="flex items-center justify-between border-b border-teal-800/30 pb-2.5">
+          <div class="flex items-center gap-2">
+            <span class="p-1.5 rounded-lg bg-teal-500/20 text-teal-400 text-xs">
+              <i class="fa-solid fa-stamp"></i>
+            </span>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-teal-200">Experimental Reproducibility & Integrity</h3>
+          </div>
+          <span id="reproducibilityBadge" class="text-[10px] mono text-teal-300 font-bold px-2.5 py-0.5 rounded bg-teal-500/10 border border-teal-500/30">
+            Reproducibility Score: 88% • ACM Evaluated
+          </span>
+        </div>
+        <p class="text-xs text-slate-400">Audit of artifact availability, dataset transparency, hardware precision, statistical variance, and baseline fairness.</p>
+        <div id="reproducibilityList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
       <!-- Rendered Article -->
       <article id="reportContent" class="prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed space-y-4">
       </article>
@@ -1028,7 +1047,7 @@
     }
 
     // FEATURE 2: Local Storage Persistent Session Archive
-    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate, takeaways, concepts, verification, claims, bias = null, gaps = null, frontier = null, tradeoffs = null) {
+    function saveSessionToArchive(topic, markdown, bibtex, score, sources, debate, takeaways, concepts, verification, claims, bias = null, gaps = null, frontier = null, tradeoffs = null, reproducibility = null) {
       try {
         const history = JSON.parse(localStorage.getItem('deepresearch_vault') || '[]');
         const newSession = {
@@ -1047,7 +1066,8 @@
           bias: bias || null,
           gaps: gaps || null,
           frontier: frontier || null,
-          tradeoffs: tradeoffs || null
+          tradeoffs: tradeoffs || null,
+          reproducibility: reproducibility || null
         };
         history.unshift(newSession);
         localStorage.setItem('deepresearch_vault', JSON.stringify(history.slice(0, 15)));
@@ -1111,7 +1131,7 @@
 
       currentTopic = session.topic;
       document.getElementById('topicInput').value = session.topic;
-      renderReport(session.markdown, session.score, session.bibtex, session.takeaways, session.concepts, session.verification, session.claims, session.bias, session.gaps, session.frontier, session.tradeoffs);
+      renderReport(session.markdown, session.score, session.bibtex, session.takeaways, session.concepts, session.verification, session.claims, session.bias, session.gaps, session.frontier, session.tradeoffs, session.reproducibility);
       renderDebateArena(session.debate);
       addSourceNodesToTopology(session.sources || []);
       closeHistoryDrawer();
@@ -1315,15 +1335,15 @@
         setAgentState('synthesizer', 'completed');
         addLog(data.message, "text-emerald-400 font-bold");
         playChord();
-        renderReport(data.report, data.confidence_score, data.bibtex, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics, data.research_gaps, data.frontier_maturity, data.tradeoff_matrix);
+        renderReport(data.report, data.confidence_score, data.bibtex, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics, data.research_gaps, data.frontier_maturity, data.tradeoff_matrix, data.reproducibility_audit);
         if (data.debate_rounds) {
           renderDebateArena(data.debate_rounds);
         }
-        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics, data.research_gaps, data.frontier_maturity, data.tradeoff_matrix);
+        saveSessionToArchive(currentTopic, data.report, data.bibtex, data.confidence_score, data.sources, data.debate_rounds, data.executive_takeaways, data.key_concepts, data.verification_matrix, data.claim_verification, data.bias_analytics, data.research_gaps, data.frontier_maturity, data.tradeoff_matrix, data.reproducibility_audit);
       }
     }
 
-    function renderReport(markdown, score, bibtex, takeaways = [], concepts = [], verification = null, claims = null, bias = null, gaps = null, frontier = null, tradeoffs = null) {
+    function renderReport(markdown, score, bibtex, takeaways = [], concepts = [], verification = null, claims = null, bias = null, gaps = null, frontier = null, tradeoffs = null, reproducibility = null) {
       currentMarkdown = markdown;
       currentBibtex = bibtex || "";
       const container = document.getElementById('reportContainer');
@@ -1489,6 +1509,45 @@
         tContainer.classList.remove('hidden');
       } else if (tContainer) {
         tContainer.classList.add('hidden');
+      }
+
+      // Render Experimental Reproducibility & Integrity Radar if present
+      const rContainer = document.getElementById('reproducibilityContainer');
+      const rList = document.getElementById('reproducibilityList');
+      if (reproducibility && reproducibility.pillars && rContainer && rList) {
+        const rBadge = document.getElementById('reproducibilityBadge');
+        if (rBadge) {
+          const rScore = reproducibility.reproducibility_score || 85;
+          const rLabel = reproducibility.badge_label || 'Artifacts Available';
+          rBadge.innerText = `Reproducibility: ${rScore}% • ${rLabel}`;
+        }
+        rList.innerHTML = reproducibility.pillars.map(p => {
+          const statusColor = p.status === 'VERIFIED'
+            ? 'bg-teal-500/20 text-teal-300 border-teal-500/30'
+            : (p.status === 'MODERATE'
+                ? 'bg-sky-500/20 text-sky-300 border-sky-500/30'
+                : 'bg-amber-500/20 text-amber-300 border-amber-500/30');
+          return `
+            <div class="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/80 hover:border-teal-500/50 transition flex flex-col justify-between space-y-2">
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <h4 class="text-xs font-bold text-white">${p.name}</h4>
+                  <span class="text-[9px] font-bold mono uppercase px-1.5 py-0.5 rounded ${statusColor} border">
+                    ${p.status}
+                  </span>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-snug">${p.description}</p>
+              </div>
+              <div class="pt-2 border-t border-slate-900/80 flex items-center justify-between">
+                <span class="text-[10px] text-slate-500 mono">${p.keyword_density} provenance hits</span>
+                <span class="text-xs font-black mono text-teal-400">${p.score}%</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+        rContainer.classList.remove('hidden');
+      } else if (rContainer) {
+        rContainer.classList.add('hidden');
       }
 
       content.innerHTML = marked.parse(markdown);
