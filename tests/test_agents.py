@@ -16,6 +16,7 @@ from core.export_tools import generate_standalone_html_publication, markdown_to_
 from core.bias_detector import analyze_source_stance, compute_corpus_bias_distribution
 from core.gap_analyzer import identify_research_gaps, compute_frontier_maturity_index
 from core.tradeoff_evaluator import extract_tradeoff_matrix, compute_pareto_balance_score
+from core.reproducibility_checker import audit_reproducibility_integrity
 from agents.planner import PlannerAgent
 from agents.critic import CriticAgent
 from agents.synthesizer import SynthesizerAgent
@@ -423,6 +424,34 @@ def test_critic_tradeoff_integration():
     assert "decision_confidence" in audit
     assert len(audit["tradeoff_matrix"]["dimensions"]) >= 4
     assert 50 <= audit["decision_confidence"] <= 100
+
+
+def test_audit_reproducibility_integrity():
+    """Verify experimental reproducibility auditing and badge categorization."""
+    topic = "Zero-Knowledge Rollup Scalability"
+    report = "Open-source GitHub repository benchmarks evaluated on Linux cluster with multi-run trials."
+    evidences = [{"title": "ZK Benchmark", "snippet": "Standardized benchmark dataset with P99 latency."}]
+
+    audit = audit_reproducibility_integrity(topic, report, evidences)
+    assert "reproducibility_score" in audit
+    assert "badge_tier" in audit
+    assert "pillars" in audit
+    assert len(audit["pillars"]) == 5
+    assert 60 <= audit["reproducibility_score"] <= 100
+    assert audit["badge_tier"] in ["ARTIFACTS_EVALUATED_REUSABLE", "ARTIFACTS_AVAILABLE", "PROVISIONAL_METHODOLOGY"]
+
+
+def test_reproducibility_pillar_scoring():
+    """Verify keyword density enhances individual reproducibility pillar scores."""
+    topic = "Database Concurrency"
+    report = "GitHub codebase benchmark on multi-core CPU with Linux kernel tuning and variance confidence intervals."
+    evidences = []
+
+    res = audit_reproducibility_integrity(topic, report, evidences)
+    artifacts_pillar = next(p for p in res["pillars"] if p["id"] == "artifacts")
+    assert artifacts_pillar["score"] >= 86
+    assert artifacts_pillar["status"] in ["VERIFIED", "MODERATE"]
+
 
 
 
