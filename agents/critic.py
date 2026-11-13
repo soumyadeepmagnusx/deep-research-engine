@@ -8,6 +8,7 @@ from core.llm_client import LLMClient
 from core.verification_tools import build_cross_verification_matrix
 from core.bias_detector import compute_corpus_bias_distribution
 from core.tradeoff_evaluator import extract_tradeoff_matrix
+from core.reproducibility_checker import audit_reproducibility_integrity
 
 
 class CriticAgent:
@@ -91,6 +92,9 @@ class CriticAgent:
         # Architectural tradeoffs & Pareto optimality
         tradeoffs = extract_tradeoff_matrix(topic, audit_text, evidences)
 
+        # Artifact & experimental reproducibility audit
+        reproducibility = audit_reproducibility_integrity(topic, audit_text, evidences)
+
         return {
             "audit_report": audit_text,
             "confidence_score": blended_score,
@@ -101,5 +105,7 @@ class CriticAgent:
             "bias_analytics": bias_analytics,
             "objectivity_index": bias_analytics.get("objectivity_index", 90),
             "tradeoff_matrix": tradeoffs,
-            "decision_confidence": tradeoffs.get("decision_confidence", 85)
+            "decision_confidence": tradeoffs.get("decision_confidence", 85),
+            "reproducibility_audit": reproducibility,
+            "reproducibility_score": reproducibility.get("reproducibility_score", 85)
         }

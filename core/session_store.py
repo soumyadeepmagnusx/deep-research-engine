@@ -23,7 +23,8 @@ class SessionStore:
         verification_score: Optional[int] = None,
         objectivity_index: Optional[int] = None,
         frontier_maturity: Optional[int] = None,
-        decision_confidence: Optional[int] = None
+        decision_confidence: Optional[int] = None,
+        reproducibility_score: Optional[int] = None
     ) -> Dict[str, Any]:
         """Record completed research execution in the ring buffer."""
         entry = {
@@ -39,6 +40,7 @@ class SessionStore:
             "objectivity_index": objectivity_index if objectivity_index is not None else 90,
             "frontier_maturity": frontier_maturity if frontier_maturity is not None else 85,
             "decision_confidence": decision_confidence if decision_confidence is not None else 85,
+            "reproducibility_score": reproducibility_score if reproducibility_score is not None else 85,
             "timestamp": time.time()
         }
         self._sessions.insert(0, entry)

@@ -157,6 +157,7 @@ async def stream_research(req: ResearchRequest):
                 obj_index = event.get("objectivity_index", 90)
                 f_maturity = event.get("frontier_maturity", {}).get("maturity_score", 85)
                 d_conf = event.get("decision_confidence", 85)
+                r_score = event.get("reproducibility_score", 85)
                 GLOBAL_SESSION_STORE.record_session(
                     topic=req.topic,
                     domain=req.domain or "General",
@@ -168,7 +169,8 @@ async def stream_research(req: ResearchRequest):
                     verification_score=v_score,
                     objectivity_index=obj_index,
                     frontier_maturity=f_maturity,
-                    decision_confidence=d_conf
+                    decision_confidence=d_conf,
+                    reproducibility_score=r_score
                 )
             payload = json.dumps(event)
             yield f"data: {payload}\n\n"

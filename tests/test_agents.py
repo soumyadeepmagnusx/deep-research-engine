@@ -453,6 +453,21 @@ def test_reproducibility_pillar_scoring():
     assert artifacts_pillar["status"] in ["VERIFIED", "MODERATE"]
 
 
+def test_critic_reproducibility_integration():
+    """Verify critic agent evaluates experimental reproducibility and outputs audit report."""
+    llm = LLMClient(api_key=None)
+    critic = CriticAgent(llm)
+    evidences = [
+        {"title": "Open Dataset Benchmark", "snippet": "GitHub repository with reproducible container and multi-run trials.", "url": "https://github.com"}
+    ]
+    audit = critic.audit_evidence("Decoupled Execution Architecture", evidences)
+    assert "reproducibility_audit" in audit
+    assert "reproducibility_score" in audit
+    assert len(audit["reproducibility_audit"]["pillars"]) == 5
+    assert 60 <= audit["reproducibility_score"] <= 100
+
+
+
 
 
 
